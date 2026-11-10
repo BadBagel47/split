@@ -793,6 +793,19 @@ body { background: #1a1730; }
 
 #mellan-app .participants-panel .person { width: 100%; box-sizing: border-box; }
 #mellan-app .modalfooter .btn.danger { margin-right: auto; }
+#mellan-app [data-split] { margin-top: 6px; }
+#mellan-app .splithint { margin: 4px 0 6px; }
+#mellan-app .splitrows { display: grid; gap: 4px; }
+#mellan-app .splitrow { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 12px; align-items: center; min-height: 52px; font-weight: 400; }
+#mellan-app .splitrow .nm { min-width: 0; }
+#mellan-app .splitrow .nm b { display: block; font-size: 16px; overflow-wrap: anywhere; }
+#mellan-app .splitrow .nm small { display: block; font-size: 13px; opacity: .75; font-variant-numeric: tabular-nums; min-height: 1em; }
+#mellan-app .splitin { display: flex; align-items: center; gap: 6px; }
+#mellan-app .splitin input { text-align: right; font-variant-numeric: tabular-nums; }
+#mellan-app .splitin span { font-size: 13px; opacity: .8; min-width: 2.2em; }
+#mellan-app .splitsum { margin: 12px 0 0; padding: 10px 14px; border-radius: 12px; font-size: 14px; font-weight: 700; background: rgba(255, 120, 105, .18); font-variant-numeric: tabular-nums; }
+#mellan-app .splitsum.is-ok { background: rgba(137, 214, 177, .22); }
+#mellan-app .splitsum:empty { display: none; }
 </style>
 </head>
 <body>
@@ -845,6 +858,16 @@ body { background: #1a1730; }
       pays: (a, b) => `${a} betalar ${b}`,
       cancel: 'Avbryt', save: 'Spara', del: 'Radera', name: 'Namn', description: 'Beskrivning', amount: 'Belopp',
       whoPaid: 'Vem betalade?', forWhom: 'Vilka ska dela?', edit: 'Ändra', remove: 'Ta bort',
+      howSplit: 'Hur ska utgiften delas?',
+      modes: { equal: 'Lika delar', percent: 'I procent', shares: 'I andelar', exact: 'Exakta belopp' },
+      modeShort: { percent: 'procent', shares: 'andelar', exact: 'exakt' },
+      modeHint: { percent: 'Ange hur många procent var och en står för.', shares: 'Ange antal andelar. Den som har 2 betalar dubbelt så mycket som den som har 1.', exact: 'Ange exakt hur mycket var och en ska betala.' },
+      sumPercent: (a, r) => `${a} % fördelat · ${r} % kvar`, sumPercentOver: (a, r) => `${a} % fördelat · ${r} % för mycket`,
+      sumShares: n => `${n} andelar totalt`,
+      sumExact: (a, r) => `${a} fördelat · ${r} kvar`, sumExactOver: (a, r) => `${a} fördelat · ${r} för mycket`,
+      needPercent: 'Procentsatserna måste bli 100 % tillsammans.', needShares: 'Ge minst en person en andel.',
+      needExact: 'Beloppen måste bli lika mycket som hela utgiften.', badNumber: 'Använd bara siffror, noll eller mer.',
+      create: 'Lägg till utgift',
       addPerson: 'Lägg till deltagare', newExpenseTitle: 'Ny utgift', editExpense: 'Ändra utgift',
       renameTitle: 'Byt namn på listan', listName: 'Listans namn',
       confirmDelete: n => `Vill du radera "${n}"? Det går inte att ångra.`,
@@ -880,6 +903,16 @@ body { background: #1a1730; }
       pays: (a, b) => `${a} pays ${b}`,
       cancel: 'Cancel', save: 'Save', del: 'Delete', name: 'Name', description: 'Description', amount: 'Amount',
       whoPaid: 'Who paid?', forWhom: 'Split between', edit: 'Edit', remove: 'Remove',
+      howSplit: 'How should it be split?',
+      modes: { equal: 'Equal parts', percent: 'By percent', shares: 'By shares', exact: 'Exact amounts' },
+      modeShort: { percent: 'percent', shares: 'shares', exact: 'exact' },
+      modeHint: { percent: 'Enter the percentage each person covers.', shares: 'Enter a number of shares. Someone with 2 pays twice as much as someone with 1.', exact: 'Enter exactly how much each person pays.' },
+      sumPercent: (a, r) => `${a} % assigned · ${r} % left`, sumPercentOver: (a, r) => `${a} % assigned · ${r} % too much`,
+      sumShares: n => `${n} shares in total`,
+      sumExact: (a, r) => `${a} assigned · ${r} left`, sumExactOver: (a, r) => `${a} assigned · ${r} too much`,
+      needPercent: 'The percentages must add up to 100 %.', needShares: 'Give at least one person a share.',
+      needExact: 'The amounts must add up to the whole expense.', badNumber: 'Use numbers only, zero or more.',
+      create: 'Add expense',
       addPerson: 'Add participant', newExpenseTitle: 'New expense', editExpense: 'Edit expense',
       renameTitle: 'Rename list', listName: 'List name',
       confirmDelete: n => `Delete "${n}"? This cannot be undone.`,
@@ -931,6 +964,25 @@ body { background: #1a1730; }
   };
   const pname = (list, id) => (list.people.find(p => p.id === id) || { name: '?' }).name;
 
+  // Per-person share of one expense. `known` limits to existing people.
+  function expenseParts(e, known) {
+    const mode = (e.split && e.split.mode) || 'equal', out = {};
+    const has = id => !known || known[id] !== undefined;
+    if (mode === 'equal') {
+      const among = e.among.filter(has);
+      among.forEach(id => { out[id] = e.amount / among.length; });
+      return out;
+    }
+    const vals = e.split.values || {};
+    const ids = Object.keys(vals).filter(id => has(id) && vals[id] > 0);
+    if (mode === 'percent') ids.forEach(id => { out[id] = e.amount * vals[id] / 100; });
+    else if (mode === 'shares') {
+      const tot = ids.reduce((s, id) => s + vals[id], 0);
+      ids.forEach(id => { out[id] = tot ? e.amount * vals[id] / tot : 0; });
+    } else if (mode === 'exact') ids.forEach(id => { out[id] = vals[id]; });
+    return out;
+  }
+
   function calc(list) {
     const paid = {}, owed = {};
     list.people.forEach(p => { paid[p.id] = 0; owed[p.id] = 0; });
@@ -938,8 +990,8 @@ body { background: #1a1730; }
     list.expenses.forEach(e => {
       sum += e.amount;
       if (paid[e.payer] !== undefined) paid[e.payer] += e.amount;
-      const among = e.among.filter(id => owed[id] !== undefined);
-      among.forEach(id => { owed[id] += e.amount / among.length; });
+      const parts = expenseParts(e, owed);
+      Object.keys(parts).forEach(id => { owed[id] += parts[id]; });
     });
     let tip = 0;
     const tp = list.tip;
@@ -1019,8 +1071,16 @@ body { background: #1a1730; }
     }).join('') : `<div class="empty">${esc(L.startAdding)}</div>`;
 
     const expenses = list.expenses.length ? list.expenses.slice().reverse().map(e => {
-      const among = e.among.length === list.people.length ? L.everyone : e.among.map(id => pname(list, id)).join(', ');
-      return `<div class="item"><div class="desc"><b>${esc(e.desc)}</b><span>${esc(L.paidBy)} ${esc(pname(list, e.payer))} · ${esc(L.splitBetween)} ${esc(among)}</span></div><span class="amount">${esc(money(e.amount, list))}</span><button class="btn tiny" data-action="expense-edit" data-id="${e.id}">${esc(L.edit)}</button></div>`;
+      const mode = (e.split && e.split.mode) || 'equal';
+      let how;
+      if (mode === 'equal') {
+        how = `${L.splitBetween} ${e.among.length === list.people.length ? L.everyone : e.among.map(id => pname(list, id)).join(', ')}`;
+      } else {
+        const v = e.split.values, fmt = x => String(Math.round(x * 100) / 100).replace('.', S.lang === 'sv' ? ',' : '.');
+        how = `${L.modeShort[mode]}: ` + Object.keys(v).filter(id => v[id] > 0).map(id =>
+          `${pname(list, id)} ${mode === 'percent' ? fmt(v[id]) + ' %' : mode === 'exact' ? money(v[id], list) : fmt(v[id])}`).join(', ');
+      }
+      return `<div class="item"><div class="desc"><b>${esc(e.desc)}</b><span>${esc(L.paidBy)} ${esc(pname(list, e.payer))} · ${esc(how)}</span></div><span class="amount">${esc(money(e.amount, list))}</span><button class="btn tiny" data-action="expense-edit" data-id="${e.id}">${esc(L.edit)}</button></div>`;
     }).join('') : `<div class="empty">${esc(L.noExpenses)}</div>`;
 
     const settle = c.tx.length ? c.tx.map(x =>
@@ -1090,28 +1150,108 @@ body { background: #1a1730; }
     });
   }
 
+  const fmtNum = x => String(Math.round(x * 100) / 100).replace('.', S.lang === 'sv' ? ',' : '.');
+
   function expenseModal(exp) {
     const L = t(), list = cur();
     const e = exp || { desc: '', amount: '', payer: list.people[0].id, among: list.people.map(p => p.id) };
+    const st = { mode: (e.split && e.split.mode) || 'equal', vals: Object.assign({}, e.split && e.split.values) };
+    const amt = form => num(form.amount.value);
+
+    function defaults(mode, form) {
+      const ids = list.people.map(p => p.id), n = ids.length, v = {};
+      if (mode === 'percent') { let left = 100; ids.forEach((id, i) => { const x = i === n - 1 ? left : Math.round(10000 / n) / 100; v[id] = x; left = Math.round((left - x) * 100) / 100; }); }
+      else if (mode === 'shares') ids.forEach(id => { v[id] = 1; });
+      else if (mode === 'exact') {
+        const a = amt(form);
+        if (a > 0) { let left = Math.round(a * 100); ids.forEach((id, i) => { const x = i === n - 1 ? left : Math.round(a * 100 / n); v[id] = x / 100; left -= x; }); }
+      }
+      return v;
+    }
+
+    function readVals(form) {
+      const v = {}; let bad = false;
+      form.querySelectorAll('[data-pid]').forEach(i => {
+        const raw = i.value.trim(); if (raw === '') return;
+        const x = num(raw); if (!(x >= 0)) bad = true; else v[i.dataset.pid] = x;
+      });
+      return bad ? null : v;
+    }
+
+    function renderSplit(form) {
+      const box = form.querySelector('[data-split]');
+      if (st.mode === 'equal') {
+        const checked = e.split && e.split.mode !== 'equal' ? list.people.map(p => p.id) : e.among;
+        box.innerHTML = `<div class="checkgrid">${list.people.map(p => `<label><input type="checkbox" name="among" value="${p.id}" ${checked.includes(p.id) ? 'checked' : ''}> ${esc(p.name)}</label>`).join('')}</div>`;
+        return;
+      }
+      const unit = st.mode === 'percent' ? '%' : st.mode === 'exact' ? list.currency : '';
+      box.innerHTML = `<p class="notice splithint">${esc(L.modeHint[st.mode])}</p><div class="splitrows">${list.people.map(p =>
+        `<label class="splitrow"><span class="nm"><b>${esc(p.name)}</b><small data-out="${p.id}"></small></span><span class="splitin"><input data-pid="${p.id}" inputmode="decimal" autocomplete="off" value="${st.vals[p.id] !== undefined ? esc(fmtNum(st.vals[p.id])) : ''}" placeholder="0" aria-label="${esc(p.name)}">${unit ? `<span>${esc(unit)}</span>` : ''}</span></label>`).join('')}</div><p class="splitsum" data-sum aria-live="polite"></p>`;
+      summary(form);
+    }
+
+    function summary(form) {
+      if (st.mode === 'equal') return;
+      const v = readVals(form) || {}, a = amt(form) > 0 ? amt(form) : 0;
+      const parts = expenseParts({ amount: a, among: [], split: { mode: st.mode, values: v } });
+      list.people.forEach(p => { const o = form.querySelector(`[data-out="${p.id}"]`); if (o) o.textContent = a && parts[p.id] ? money(parts[p.id], list) : ''; });
+      const sumEl = form.querySelector('[data-sum]');
+      const tot = Object.values(v).reduce((s, x) => s + x, 0);
+      let txt, ok;
+      if (st.mode === 'percent') { const r = 100 - tot; ok = Math.abs(r) < 0.005; txt = r < -0.004 ? L.sumPercentOver(fmtNum(tot), fmtNum(-r)) : L.sumPercent(fmtNum(tot), fmtNum(Math.max(r, 0))); }
+      else if (st.mode === 'shares') { ok = tot > 0; txt = L.sumShares(fmtNum(tot)); }
+      else { const r = a - tot; ok = Math.abs(r) < 0.005; txt = r < -0.004 ? L.sumExactOver(money(tot, list), money(-r, list)) : L.sumExact(money(tot, list), money(Math.max(r, 0), list)); }
+      sumEl.textContent = txt;
+      sumEl.classList.toggle('is-ok', ok);
+    }
+
     modal(`<h3>${esc(exp ? L.editExpense : L.newExpenseTitle)}</h3>
       <div class="field"><label for="f-desc">${esc(L.description)}</label><input id="f-desc" name="desc" value="${esc(e.desc)}" maxlength="80" autocomplete="off"></div>
       <div class="field"><label for="f-amount">${esc(L.amount)} (${esc(list.currency)})</label><input id="f-amount" name="amount" inputmode="decimal" value="${e.amount === '' ? '' : esc(String(e.amount).replace('.', S.lang === 'sv' ? ',' : '.'))}" autocomplete="off"></div>
       <div class="field"><label for="f-payer">${esc(L.whoPaid)}</label><select id="f-payer" name="payer">${list.people.map(p => `<option value="${p.id}" ${p.id === e.payer ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
-      <div class="field"><label>${esc(L.forWhom)}</label><div class="checkgrid">${list.people.map(p => `<label><input type="checkbox" name="among" value="${p.id}" ${e.among.includes(p.id) ? 'checked' : ''}> ${esc(p.name)}</label>`).join('')}</div></div>
-      ${errEl}${footer(L.save, exp ? `<button type="button" class="btn danger" data-del style="margin-right:auto">${esc(L.del)}</button>` : '')}`,
+      <div class="field"><label for="f-mode">${esc(L.howSplit)}</label><select id="f-mode" name="mode">${Object.keys(L.modes).map(m => `<option value="${m}" ${m === st.mode ? 'selected' : ''}>${esc(L.modes[m])}</option>`).join('')}</select><div data-split></div></div>
+      ${errEl}${footer(exp ? L.save : L.create, exp ? `<button type="button" class="btn danger" data-del>${esc(L.del)}</button>` : '')}`,
       form => {
-        const desc = form.desc.value.trim(), amount = num(form.amount.value);
-        const among = [...form.querySelectorAll('[name=among]:checked')].map(i => i.value);
+        const desc = form.desc.value.trim(), amount = Math.round(num(form.amount.value) * 100) / 100;
         if (!desc) return setErr(form, L.needDesc);
         if (!(amount > 0)) return setErr(form, L.needAmount);
-        if (!among.length) return setErr(form, L.needAmong);
+        let among, split;
+        if (st.mode === 'equal') {
+          among = [...form.querySelectorAll('[name=among]:checked')].map(i => i.value);
+          if (!among.length) return setErr(form, L.needAmong);
+          split = { mode: 'equal' };
+        } else {
+          const v = readVals(form);
+          if (!v) return setErr(form, L.badNumber);
+          Object.keys(v).forEach(id => { if (!(v[id] > 0)) delete v[id]; });
+          const tot = Object.values(v).reduce((s, x) => s + x, 0);
+          if (st.mode === 'percent' && Math.abs(tot - 100) >= 0.005) return setErr(form, L.needPercent);
+          if (st.mode === 'shares' && !(tot > 0)) return setErr(form, L.needShares);
+          if (st.mode === 'exact' && Math.abs(tot - amount) >= 0.005) return setErr(form, L.needExact);
+          among = Object.keys(v);
+          split = { mode: st.mode, values: v };
+        }
         closeModal();
         update(() => {
-          const data = { desc, amount: Math.round(amount * 100) / 100, payer: form.payer.value, among, allPeople: among.length === list.people.length };
+          const data = { desc, amount, payer: form.payer.value, among, split, allPeople: split.mode === 'equal' && among.length === list.people.length };
           if (exp) Object.assign(exp, data); else list.expenses.push({ id: uid(), date: Date.now(), ...data });
         });
       },
       form => {
+        renderSplit(form);
+        form.mode.addEventListener('change', () => {
+          const v = readVals(form);
+          if (st.mode !== 'equal' && v) st.vals = v;
+          st.mode = form.mode.value;
+          const same = e.split && e.split.mode === st.mode;
+          st.vals = same ? Object.assign({}, e.split.values) : defaults(st.mode, form);
+          setErr(form, '');
+          renderSplit(form);
+        });
+        form.addEventListener('input', ev => {
+          if (ev.target.dataset.pid !== undefined || ev.target.name === 'amount') summary(form);
+        });
         const d = form.querySelector('[data-del]');
         if (d) d.addEventListener('click', () => { closeModal(); update(() => { list.expenses = list.expenses.filter(x => x.id !== exp.id); }); });
       });
