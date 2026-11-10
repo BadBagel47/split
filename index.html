@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Split expenses, calculate tips and settle up. Everything is saved locally in your browser.">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#222322">
+<title>Split</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='12' fill='%23f7d370'/%3E%3Cpath d='M5.5 12h13' stroke='%23222' stroke-width='3.2' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='6.5' r='1.95' fill='%23222'/%3E%3Ccircle cx='12' cy='17.5' r='1.95' fill='%23222'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Agbalumo&display=swap">
+<style>
+
+body { margin: 0px; padding: 24px 12px; background: rgb(237, 241, 246); }
+
+@media (max-width: 760px) {
+  body { padding: 0px; }
+}
+
+#mellan-app { font: 14px / 1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: rgb(23, 35, 59); max-width: 1100px; margin: auto; border: 1px solid rgb(219, 227, 236); border-radius: 16px; overflow: hidden; background: rgb(246, 248, 251); box-shadow: rgba(18, 28, 48, 0.08) 0px 2px 14px; }
+
+#mellan-app * { box-sizing: border-box; }
+
+#mellan-app button, #mellan-app input, #mellan-app textarea, #mellan-app select { font: inherit; }
+
+#mellan-app button { cursor: pointer; }
+
+#mellan-app button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#mellan-app .layout { display: grid; grid-template-columns: 215px minmax(0px, 1fr); min-height: 640px; }
+
+#mellan-app .aside { background: rgb(23, 35, 58); color: rgb(237, 243, 250); padding: 23px 14px; display: flex; flex-direction: column; gap: 22px; }
+
+#mellan-app .brand { display: flex; align-items: center; gap: 11px; padding: 0px 7px; }
+
+#mellan-app .logo { background: rgb(137, 214, 177); color: rgb(17, 53, 45); border-radius: 10px; width: 37px; height: 37px; display: grid; place-items: center; font-size: 27px; font-weight: 700; }
+
+#mellan-app .brand strong { font-size: 24px; letter-spacing: -1px; }
+
+#mellan-app .asidehead { display: flex; align-items: center; justify-content: space-between; padding: 0px 8px; font-size: 10px; font-weight: 750; letter-spacing: 1.4px; color: rgb(154, 174, 197); }
+
+#mellan-app .nav { display: flex; flex-direction: column; gap: 6px; }
+
+#mellan-app .nav button { border: 0px; text-align: left; background: transparent; color: rgb(191, 208, 230); border-radius: 9px; padding: 10px 12px; width: 100%; }
+
+#mellan-app .nav button.on { background: rgb(48, 65, 94); color: white; }
+
+#mellan-app .nav button b { display: block; overflow-wrap: anywhere; font-size: 13px; }
+
+#mellan-app .nav button span { color: rgb(159, 178, 202); font-size: 11px; }
+
+#mellan-app .asidefoot { margin-top: auto; padding: 8px; color: rgb(162, 180, 202); font-size: 11px; }
+
+#mellan-app .main { padding: 25px; min-width: 0px; }
+
+#mellan-app .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+
+#mellan-app .eyebrow { font-weight: 800; letter-spacing: 1.5px; font-size: 10px; color: rgb(117, 131, 154); }
+
+#mellan-app h2 { font-size: 27px; line-height: 1.2; letter-spacing: -0.7px; margin: 4px 0px 7px; }
+
+#mellan-app h3 { font-size: 15px; margin: 0px; color: rgb(26, 42, 69); }
+
+#mellan-app p { margin: 0px; }
+
+#mellan-app .sub { color: rgb(112, 128, 151); font-size: 12px; }
+
+#mellan-app .actions { display: flex; flex-wrap: wrap; gap: 7px; }
+
+#mellan-app .btn { padding: 9px 13px; border: 1px solid rgb(215, 224, 235); border-radius: 8px; background: white; color: rgb(36, 55, 83); font-size: 12px; font-weight: 700; }
+
+#mellan-app .btn.primary { background: rgb(44, 142, 117); border-color: rgb(44, 142, 117); color: white; }
+
+#mellan-app .btn.danger { color: rgb(182, 77, 82); border-color: rgb(240, 203, 208); }
+
+#mellan-app .btn.tiny { padding: 5px 8px; }
+
+#mellan-app .btn.quiet { background: transparent; }
+
+#mellan-app .btn:hover { filter: brightness(0.96); }
+
+#mellan-app .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 12px; margin-bottom: 16px; }
+
+#mellan-app .stat, #mellan-app .panel { background: white; border: 1px solid rgb(225, 232, 240); border-radius: 12px; }
+
+#mellan-app .stat { padding: 16px; }
+
+#mellan-app .stat .label { color: rgb(113, 129, 153); font-size: 11px; font-weight: 650; }
+
+#mellan-app .stat strong { display: block; font-size: 21px; letter-spacing: -0.5px; margin-top: 8px; overflow-wrap: anywhere; }
+
+#mellan-app .stat small { color: rgb(154, 171, 188); font-size: 10px; }
+
+#mellan-app .columns { display: grid; grid-template-columns: minmax(0px, 1.3fr) minmax(240px, 1fr); gap: 14px; }
+
+#mellan-app .panel { padding: 17px; margin-bottom: 14px; min-width: 0px; }
+
+#mellan-app .ph { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 13px; }
+
+#mellan-app .item { display: flex; align-items: center; gap: 10px; border-top: 1px solid rgb(239, 242, 246); padding: 11px 0px; min-width: 0px; }
+
+#mellan-app .item:first-of-type { border-top: 0px; }
+
+#mellan-app .round { background: rgb(225, 242, 237); color: rgb(52, 121, 99); border-radius: 10px; min-width: 33px; height: 33px; display: grid; place-items: center; font-weight: 750; }
+
+#mellan-app .item .desc { flex: 1 1 0%; min-width: 0px; }
+
+#mellan-app .item .desc b { display: block; font-size: 12px; overflow-wrap: anywhere; }
+
+#mellan-app .item .desc span { display: block; color: rgb(130, 144, 163); font-size: 11px; }
+
+#mellan-app .amount { font-size: 12px; font-weight: 800; white-space: nowrap; }
+
+#mellan-app .empty { color: rgb(145, 160, 178); padding: 19px 4px; text-align: center; font-size: 12px; }
+
+#mellan-app .person { display: flex; align-items: center; gap: 9px; border-top: 1px solid rgb(239, 242, 246); padding: 9px 0px; }
+
+#mellan-app .person .who { flex: 1 1 0%; min-width: 0px; }
+
+#mellan-app .person .who b { display: block; font-size: 12px; }
+
+#mellan-app .person .who small { font-size: 10px; color: rgb(135, 149, 166); }
+
+#mellan-app .balance { font-weight: 750; font-size: 12px; white-space: nowrap; }
+
+#mellan-app .plus { color: rgb(33, 133, 106); }
+
+#mellan-app .minus { color: rgb(188, 98, 97); }
+
+#mellan-app .settle { padding: 10px 0px; border-top: 1px solid rgb(237, 241, 245); display: flex; justify-content: space-between; align-items: center; gap: 9px; }
+
+#mellan-app .settle b { font-size: 12px; }
+
+#mellan-app .settle .detail { color: rgb(127, 145, 165); font-size: 11px; }
+
+#mellan-app .tipform { display: grid; gap: 9px; }
+
+#mellan-app .tipform label { font-size: 11px; color: rgb(87, 106, 131); }
+
+#mellan-app .tiprow { display: flex; gap: 7px; flex-wrap: wrap; }
+
+#mellan-app .tiprow > div { flex: 1 1 0%; min-width: 75px; }
+
+#mellan-app input:not([type="checkbox"]), #mellan-app select, #mellan-app textarea { border: 1px solid rgb(207, 217, 229); border-radius: 8px; padding: 8px 9px; background: white; color: rgb(24, 41, 69); width: 100%; min-width: 0px; outline-offset: 2px; }
+
+#mellan-app input[type="checkbox"] { accent-color: rgb(44, 142, 117); }
+
+#mellan-app .checkbox { display: flex; align-items: center; gap: 6px; }
+
+#mellan-app .tipform input, #mellan-app .tipform select { margin-top: 3px; }
+
+#mellan-app .modalbg { position: fixed; inset: 0px; background: rgba(9, 24, 45, 0.61); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 12px; }
+
+#mellan-app .modal { background: rgb(255, 255, 255); border-radius: 14px; max-width: 480px; width: 100%; max-height: 90vh; overflow: auto; padding: 22px; box-shadow: rgba(19, 32, 50, 0.333) 0px 18px 70px; }
+
+#mellan-app .modal h3 { font-size: 20px; margin-bottom: 6px; }
+
+#mellan-app .modal .field { display: grid; gap: 5px; margin-top: 13px; }
+
+#mellan-app .modal .field > label { font-size: 12px; font-weight: 650; }
+
+#mellan-app .modal .checkgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-top: 5px; }
+
+#mellan-app .modal .checkgrid label { font-size: 12px; display: flex; gap: 5px; align-items: center; }
+
+#mellan-app .modalfooter { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+
+#mellan-app textarea { resize: vertical; min-height: 85px; font-size: 12px; }
+
+#mellan-app .notice { font-size: 11px; color: rgb(115, 131, 154); margin: 12px 0px; }
+
+#mellan-app .error { color: rgb(181, 70, 78); font-size: 12px; font-weight: 600; min-height: 16px; }
+
+#mellan-app .toast { margin-bottom: 12px; padding: 9px 12px; border-radius: 8px; background: rgb(227, 242, 236); color: rgb(36, 111, 93); font-size: 12px; }
+
+#mellan-app .danger-text { color: rgb(182, 77, 82); }
+
+#mellan-app .currency { width: 100px !important; }
+
+#mellan-app .sharedhint { font-size: 11px; color: rgb(113, 131, 154); margin-top: 12px; }
+
+@media (max-width: 760px) {
+  #mellan-app .layout { grid-template-columns: 1fr; }
+  #mellan-app .aside { padding: 12px; gap: 12px; }
+  #mellan-app .asidefoot { display: none; }
+  #mellan-app .asidehead { padding: 0px 5px; }
+  #mellan-app .nav { flex-direction: row; overflow-x: auto; }
+  #mellan-app .nav button { min-width: 120px; max-width: 180px; }
+  #mellan-app .main { padding: 16px; }
+  #mellan-app .top { align-items: flex-start; flex-direction: column; }
+  #mellan-app .grid3 { gap: 7px; }
+  #mellan-app .stat { padding: 10px; }
+  #mellan-app .stat strong { font-size: 16px; }
+  #mellan-app .columns { grid-template-columns: 1fr; }
+  #mellan-app .panel { padding: 14px; }
+}
+
+@media (max-width: 420px) {
+  #mellan-app .item { flex-wrap: wrap; }
+  #mellan-app .person { flex-wrap: wrap; }
+  #mellan-app .who { min-width: 100px !important; }
+  #mellan-app .ph { flex-wrap: wrap; }
+  #mellan-app .main { padding: 10px; }
+  #mellan-app h2 { overflow-wrap: anywhere; }
+  #mellan-app .person .who b { overflow-wrap: anywhere; }
+}
+
+#mellan-app button:focus-visible, #mellan-app input:focus-visible, #mellan-app select:focus-visible, #mellan-app textarea:focus-visible { outline: rgb(52, 142, 120) solid 3px; outline-offset: 3px; }
+
+#mellan-app .amount, #mellan-app .balance, #mellan-app .stat strong { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 760px) {
+  #mellan-app { font-size: 16px; line-height: 1.55; border: 0px; border-radius: 0px; box-shadow: none; overflow: visible; }
+  #mellan-app .layout { min-height: 100dvh; }
+  #mellan-app .aside { padding: 20px 16px 16px; gap: 20px; }
+  #mellan-app .brand strong { font-size: 28px; }
+  #mellan-app .asidehead { font-size: 12px; letter-spacing: 1.2px; }
+  #mellan-app .nav { gap: 8px; padding: 8px 0px 2px; max-width: 100%; }
+  #mellan-app .nav button { min-width: 155px; max-width: 210px; flex-shrink: 0; padding: 12px 14px; }
+  #mellan-app .nav button b { font-size: 16px; }
+  #mellan-app .nav button span { font-size: 13px; }
+  #mellan-app .main { padding-top: 24px; padding-right: 16px; padding-left: 16px; padding-bottom: max(32px,env(safe-area-inset-bottom)); }
+  #mellan-app .top { gap: 18px; margin-bottom: 24px; }
+  #mellan-app .top > div { min-width: 0px; width: 100%; }
+  #mellan-app .eyebrow { font-size: 11px; }
+  #mellan-app h2 { font-size: 30px; line-height: 1.18; overflow-wrap: anywhere; margin: 8px 0px 10px; }
+  #mellan-app h3 { font-size: 19px; line-height: 1.3; }
+  #mellan-app .sub { font-size: 14px; color: rgb(89, 107, 130); }
+  #mellan-app .btn, #mellan-app .btn.tiny { min-height: 46px; min-width: 46px; padding: 10px 14px; font-size: 15px; border-radius: 11px; touch-action: manipulation; }
+  #mellan-app .top .actions { display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 8px; }
+  #mellan-app .top .actions .btn { padding: 10px 6px; }
+  #mellan-app .grid3 { grid-template-columns: repeat(2, minmax(0px, 1fr)); gap: 10px; margin-bottom: 22px; }
+  #mellan-app .stat { padding: 16px; border-radius: 16px; }
+  #mellan-app .stat:first-child { grid-column: 1 / -1; background: rgb(228, 242, 236); border-color: rgb(206, 229, 219); }
+  #mellan-app .stat .label { font-size: 14px; color: rgb(76, 99, 114); }
+  #mellan-app .stat strong { font-size: 25px; margin-top: 4px; }
+  #mellan-app .stat:first-child strong { font-size: 36px; line-height: 1.2; color: rgb(23, 93, 75); letter-spacing: -1px; margin: 8px 0px; }
+  #mellan-app .stat small { font-size: 13px; color: rgb(100, 119, 136); }
+  #mellan-app .columns { gap: 0px; }
+  #mellan-app .panel { padding: 18px 16px; margin-bottom: 18px; border-radius: 16px; box-shadow: rgba(23, 35, 58, 0.016) 0px 3px 12px; }
+  #mellan-app .ph { gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  #mellan-app .round { min-width: 40px; width: 40px; height: 40px; border-radius: 12px; font-size: 17px; }
+  #mellan-app .item { display: grid; grid-template-columns: 40px minmax(0px, 1fr) auto; gap: 8px 12px; padding: 18px 0px; align-items: center; }
+  #mellan-app .item .round { grid-row: 1 / 3; }
+  #mellan-app .item .desc { grid-column: 2 / -1; }
+  #mellan-app .item .desc b { font-size: 16px; line-height: 1.4; }
+  #mellan-app .item .desc span { font-size: 13px; color: rgb(97, 114, 137); margin-top: 3px; }
+  #mellan-app .amount { grid-column: 2; font-size: 17px; white-space: normal; overflow-wrap: anywhere; }
+  #mellan-app .item > .btn { grid-column: 3; min-height: 44px; }
+  #mellan-app .person { display: grid; grid-template-columns: 40px minmax(0px, 1fr) 46px; gap: 6px 12px; padding: 16px 0px; }
+  #mellan-app .person .round { grid-row: 1 / 3; }
+  #mellan-app .person .who { min-width: 0px !important; }
+  #mellan-app .person .who b { font-size: 16px; overflow-wrap: anywhere; }
+  #mellan-app .person .who small { display: block; font-size: 13px; color: rgb(97, 114, 137); }
+  #mellan-app .person .balance { grid-area: 2 / 2; font-size: 17px; white-space: normal; overflow-wrap: anywhere; }
+  #mellan-app .person > .btn { grid-area: 1 / 3 / 3; font-size: 22px; }
+  #mellan-app .settle { padding: 16px 0px; align-items: flex-start; flex-wrap: wrap; }
+  #mellan-app .settle b { font-size: 16px; overflow-wrap: anywhere; }
+  #mellan-app .settle .detail { font-size: 14px; }
+  #mellan-app .empty { font-size: 15px; padding: 24px 0px; color: rgb(99, 117, 138); }
+  #mellan-app .tipform { gap: 16px; }
+  #mellan-app .tipform label, #mellan-app .tiprow > label { font-size: 15px; color: rgb(78, 98, 121); }
+  #mellan-app input:not([type="checkbox"]), #mellan-app select, #mellan-app textarea { font-size: 16px; min-height: 48px; padding: 11px 12px; border-radius: 10px; }
+  #mellan-app input[type="checkbox"] { width: 22px; height: 22px; flex-shrink: 0; margin: 0px; }
+  #mellan-app .checkbox { min-height: 44px; gap: 10px; }
+  #mellan-app .tiprow { gap: 12px; align-items: center; }
+  #mellan-app .tipform .actions .btn { width: 100%; }
+  #mellan-app .sharedhint, #mellan-app .notice { font-size: 14px; line-height: 1.6; color: rgb(89, 107, 130); }
+  #mellan-app .toast, #mellan-app .error { font-size: 15px; }
+  #mellan-app .modalbg { padding: 12px; align-items: center; }
+  #mellan-app .modal { padding: 22px 18px; max-height: calc(100dvh - 24px); border-radius: 20px; }
+  #mellan-app .modal h3 { font-size: 24px; }
+  #mellan-app .modal .field { margin-top: 18px; gap: 8px; }
+  #mellan-app .modal .field > label { font-size: 15px; }
+  #mellan-app .modal .checkgrid { grid-template-columns: 1fr; gap: 4px; }
+  #mellan-app .modal .checkgrid label { font-size: 16px; min-height: 44px; gap: 10px; }
+  #mellan-app .modalfooter { margin-top: 24px; gap: 10px; }
+  #mellan-app textarea { min-height: 125px; }
+}
+</style>
+<style data-theme-css="mobile"></style>
+<style data-theme-css="paper">
+body { background: #e8eefb; }
+#mellan-app { --action-color: #cfdcff; }
+#mellan-app .aside { background: #1d3fb8; }
+#mellan-app .logo { background: #ffffff; color: #1d3fb8; }
+#mellan-app .nav button { color: #d7e1ff; }
+#mellan-app .nav button.on { background: #ffffff; color: #1d3fb8; }
+#mellan-app .nav button span, #mellan-app .asidehead, #mellan-app .asidefoot { color: #b9c9ff; }
+#mellan-app .nav button.on span { color: #4a64c4; }
+#mellan-app .btn.primary { background: #2f5bea; border-color: #2f5bea; }
+#mellan-app .stat:first-child { background: #2f5bea; border-color: #2f5bea; color: #fff; }
+#mellan-app .stat:first-child .label, #mellan-app .stat:first-child small, #mellan-app .stat:first-child strong { color: #fff; }
+#mellan-app .round { background: #e3eaff; color: #2f5bea; }
+#mellan-app .plus { color: #1d48d6; }
+#mellan-app .settle { background: #f0f4ff; border: 0; border-radius: 10px; padding: 12px; margin-top: 8px; }
+#mellan-app input[type="checkbox"] { accent-color: #2f5bea; }
+#mellan-app .toast { background: #e3eaff; color: #1d3fb8; }
+#mellan-app .preferences { --preferences-accent: #ffffff; }
+
+</style>
+<style data-theme-css="buttons">
+body { background: #f6efe9; }
+#mellan-app { --action-color: #ffd6e0; background: #fffaf6; border-color: #f0e2d8; border-radius: 26px; }
+#mellan-app .aside { background: #f3e7ff; color: #3c2d55; }
+#mellan-app .logo { background: #c8f0dc; color: #24543f; border-radius: 50%; }
+#mellan-app .asidehead, #mellan-app .asidefoot { color: #7a6a93; }
+#mellan-app .asidehead .btn { background: #ffd6e0; border-color: #ffd6e0; border-radius: 50%; }
+#mellan-app .nav button { color: #4d3e66; background: #ffffffa0; border-radius: 16px; }
+#mellan-app .nav button.on { background: #ffd6e0; color: #3c2d55; }
+#mellan-app .nav button span { color: #7a6a93; }
+#mellan-app .btn { border-radius: 999px; border-color: #eadff2; }
+#mellan-app .btn.primary { background: #c8f0dc; border-color: #c8f0dc; color: #24543f; }
+#mellan-app .stat, #mellan-app .panel { border-radius: 22px; border-color: #f0e2d8; }
+#mellan-app .stat:first-child { background: #fff0c9; border-color: #fff0c9; }
+#mellan-app .round { background: #d9ecff; color: #2c4f75; border-radius: 50%; }
+#mellan-app .settle { background: #e9f8ef; border: 0; border-radius: 16px; padding: 12px 14px; margin-top: 8px; }
+#mellan-app .plus { color: #2d7a55; }
+#mellan-app .minus { color: #c0566e; }
+#mellan-app input:not([type="checkbox"]), #mellan-app select, #mellan-app textarea { border-radius: 14px; }
+#mellan-app input[type="checkbox"] { accent-color: #e48aa3; }
+#mellan-app .modal { border-radius: 24px; background: #fffaf6; }
+#mellan-app .toast { background: #ffe9ef; color: #7a3b4d; border-radius: 16px; }
+#mellan-app .preferences { --preferences-surface: #fffaf6; --preferences-ink: #3c2d55; --preferences-accent: #e48aa3; --preferences-radius: 16px; }
+
+</style>
+<style data-theme-css="bold">
+body { background: rgb(191, 206, 197); padding: 28px 20px; }
+
+#mellan-app { --ink: #222322; --muted: #c4c7c0; --coral: #ff7869; --violet: #8074fa; --yellow: #f7d370; --sage: #c9d8cc; color: rgb(250, 249, 241); background: var(--ink); font: 16px / 1.5 Arial, Helvetica, sans-serif; max-width: 1280px; border: 0px; border-radius: 32px; overflow: hidden; box-shadow: rgba(30, 52, 41, 0.145) 0px 24px 80px; }
+
+#mellan-app .layout { display: grid; grid-template-columns: 210px minmax(0px, 1fr); min-height: calc(100dvh - 56px); }
+
+#mellan-app .aside { background: rgb(27, 28, 27); border-right: 1px solid rgb(62, 64, 61); padding: 30px 16px; color: white; gap: 30px; }
+
+#mellan-app .brand { gap: 10px; padding: 0px 4px; }
+
+#mellan-app .brand strong { font-size: 32px; letter-spacing: -1.8px; }
+
+#mellan-app .logo { border-radius: 50%; background: var(--yellow); color: rgb(34, 34, 34); width: 40px; height: 40px; font-size: 30px; }
+
+#mellan-app .asidehead { color: rgb(210, 212, 205); font-size: 11px; letter-spacing: 1.2px; }
+
+#mellan-app .asidehead .btn { background: var(--yellow); color: rgb(34, 34, 34); min-width: 44px; min-height: 44px; border-radius: 50%; padding: 4px; font-size: 24px; }
+
+#mellan-app .nav { gap: 10px; }
+
+#mellan-app .nav button { padding: 15px; border-radius: 18px; background: rgb(48, 50, 47); color: rgb(247, 247, 240); border: 1px solid transparent; }
+
+#mellan-app .nav button.on { background: var(--sage); color: rgb(34, 34, 34); border-color: var(--sage); }
+
+#mellan-app .nav button b { font-size: 15px; }
+
+#mellan-app .nav button span { font-size: 12px; color: rgb(197, 200, 192); }
+
+#mellan-app .nav button.on span { color: rgb(55, 71, 59); }
+
+#mellan-app .asidefoot { font-size: 12px; color: rgb(197, 200, 192); }
+
+#mellan-app .main { padding: 34px 30px; background: var(--ink); }
+
+#mellan-app .top { margin-bottom: 28px; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+
+#mellan-app .top > div:first-child { min-width: 0px; }
+
+#mellan-app .eyebrow { color: rgb(221, 217, 169); font-size: 11px; font-weight: 700; letter-spacing: 1.6px; }
+
+#mellan-app h2, #mellan-app h3 { font-family: inherit; color: rgb(249, 248, 241); font-weight: 750; }
+
+#mellan-app h3 { text-transform: uppercase; }
+
+#mellan-app h2 { font-size: 36px; letter-spacing: -0.025em; line-height: 1.15; margin: 10px 0px 12px; overflow-wrap: anywhere; }
+
+#mellan-app h3 { font-size: 21px; letter-spacing: -0.02em; line-height: 1.25; }
+
+#mellan-app .sub { color: rgb(208, 210, 203); font-size: 14px; }
+
+#mellan-app .btn, #mellan-app .btn.tiny, #mellan-app .top .actions .btn { background: rgb(250, 249, 244); color: rgb(34, 35, 34); border: 1px solid rgb(250, 249, 244); border-radius: 28px; min-height: 46px; min-width: 46px; padding: 10px 15px; font-size: 14px; font-weight: 700; box-shadow: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+#mellan-app .btn.primary { background: var(--yellow); border-color: var(--yellow); color: rgb(34, 34, 34); }
+
+#mellan-app .btn.danger { background: rgb(70, 45, 44); color: rgb(255, 212, 205); border-color: rgb(117, 80, 74); }
+
+#mellan-app .btn.quiet { background: rgb(75, 78, 72); color: rgb(255, 255, 255); border-color: rgb(102, 106, 96); }
+
+#mellan-app .btn:hover { filter: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  #mellan-app .btn:hover { filter: brightness(0.9); }
+}
+
+#mellan-app button:active { transform: scale(0.98); }
+
+@media (prefers-reduced-motion: reduce) {
+  #mellan-app button:active { transform: none; }
+}
+
+#mellan-app .grid3 { grid-template-columns: minmax(0px, 1.8fr) minmax(0px, 1fr) minmax(0px, 1fr); gap: 12px; margin-bottom: 24px; }
+
+#mellan-app .stat { border: 0px; border-radius: 25px; padding: 24px; background: var(--yellow); color: rgb(34, 34, 34); }
+
+#mellan-app .stat:first-child { background: var(--coral); grid-column: auto; position: relative; }
+
+#mellan-app .stat:nth-child(2) { background: var(--violet); }
+
+#mellan-app .stat .label { color: rgb(34, 34, 34); font-size: 13px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.2px; }
+
+#mellan-app .stat strong { display: block; font-size: 38px; font-weight: 700; line-height: 1.12; letter-spacing: -1.5px; margin: 18px 0px 8px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+#mellan-app .stat:first-child strong { font-size: clamp(30px, 3.5vw, 48px); color: rgb(34, 34, 34); }
+
+#mellan-app .stat small { font-size: 13px; color: rgb(48, 45, 41); }
+
+#mellan-app .columns { grid-template-columns: minmax(0px, 1.2fr) minmax(0px, 1fr); gap: 20px; }
+
+#mellan-app .panel { background: rgb(48, 50, 47); border: 1px solid rgb(60, 63, 57); border-radius: 26px; padding: 22px 20px; margin-bottom: 20px; box-shadow: none; }
+
+#mellan-app .ph { margin-bottom: 18px; gap: 12px; flex-wrap: wrap; }
+
+#mellan-app .round { background: var(--sage); color: rgb(34, 34, 34); border: 0px; border-radius: 50%; min-width: 38px; width: 38px; height: 38px; font-size: 16px; }
+
+#mellan-app .item, #mellan-app .person { border-top: 1px solid rgb(75, 78, 71); padding: 16px 0px; gap: 10px; }
+
+#mellan-app .item .desc b, #mellan-app .person .who b { font-size: 15px; color: rgb(255, 253, 246); overflow-wrap: anywhere; }
+
+#mellan-app .item .desc span, #mellan-app .person .who small { font-size: 13px; color: rgb(198, 201, 192); }
+
+#mellan-app .amount, #mellan-app .balance { font-size: 16px; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+
+#mellan-app .plus { color: rgb(217, 234, 182); }
+
+#mellan-app .minus { color: rgb(255, 178, 166); }
+
+#mellan-app .settle { border: 0px; border-radius: 18px; background: var(--sage); color: rgb(34, 34, 34); padding: 17px; margin-top: 10px; gap: 10px; flex-wrap: wrap; }
+
+#mellan-app .settle b { font-size: 16px; color: rgb(34, 34, 34); }
+
+#mellan-app .settle .detail { font-size: 13px; color: rgb(64, 80, 70); margin-top: 3px; }
+
+#mellan-app .empty { font-size: 15px; color: rgb(208, 210, 201); padding: 24px 4px; }
+
+#mellan-app .tipform { gap: 15px; }
+
+#mellan-app .tipform label, #mellan-app .tiprow > label { font-size: 14px; color: rgb(236, 238, 229); }
+
+#mellan-app input:not([type="checkbox"]), #mellan-app select, #mellan-app textarea { border: 1px solid rgb(105, 110, 98); border-radius: 16px; background: rgb(37, 39, 35); color: rgb(255, 253, 246); min-height: 48px; padding: 11px 13px; font-size: 16px; color-scheme: dark; }
+
+#mellan-app input::placeholder, #mellan-app textarea::placeholder { color: rgb(186, 192, 179); }
+
+#mellan-app input[type="checkbox"] { accent-color: var(--yellow); width: 22px; height: 22px; flex-shrink: 0; }
+
+#mellan-app .checkbox { gap: 10px; min-height: 44px; }
+
+#mellan-app .tiprow { gap: 12px; }
+
+#mellan-app .sharedhint, #mellan-app .notice { font-size: 13px; line-height: 1.6; color: rgb(205, 208, 197); }
+
+#mellan-app .modalbg { background: rgba(17, 25, 17, 0.72); backdrop-filter: blur(5px); }
+
+#mellan-app .modal { background: rgb(48, 50, 47); color: rgb(255, 253, 246); border: 1px solid rgb(93, 100, 86); border-radius: 28px; padding: 28px; box-shadow: rgba(0, 0, 0, 0.267) 0px 24px 80px; }
+
+#mellan-app .modal h3 { font-size: 27px; color: rgb(255, 253, 246); }
+
+#mellan-app .modal .field > label { font-size: 15px; }
+
+#mellan-app .error { color: rgb(255, 178, 166); font-size: 14px; }
+
+#mellan-app .toast { border: 0px; background: var(--yellow); color: rgb(34, 34, 34); border-radius: 18px; font-size: 15px; }
+
+#mellan-app button:focus-visible, #mellan-app input:focus-visible, #mellan-app select:focus-visible, #mellan-app textarea:focus-visible { outline: rgb(183, 217, 235) solid 3px; outline-offset: 3px; }
+
+@media (max-width: 1050px) and (min-width: 761px) {
+  #mellan-app .columns { grid-template-columns: 1fr; }
+  #mellan-app .grid3 { grid-template-columns: 1fr 1fr; }
+  #mellan-app .stat:first-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  body { background: rgb(34, 35, 34); padding: 0px; }
+  #mellan-app { border-radius: 0px; font-size: 16px; }
+  #mellan-app .layout { display: block; min-height: 100dvh; }
+  #mellan-app .aside { padding: 24px 20px 18px; border-width: 0px 0px 1px; border-style: none none solid; border-color: currentcolor currentcolor rgb(69, 74, 65); border-image: none; gap: 20px; }
+  #mellan-app .brand strong { font-size: 34px; }
+  #mellan-app .asidefoot { display: none; }
+  #mellan-app .asidehead { padding: 0px 4px; }
+  #mellan-app .nav { flex-direction: row; overflow-x: auto; padding-top: 10px; gap: 10px; }
+  #mellan-app .nav button { min-width: 160px; max-width: 210px; flex-shrink: 0; padding: 14px 16px; }
+  #mellan-app .nav button b { font-size: 16px; }
+  #mellan-app .nav button span { font-size: 13px; }
+  #mellan-app .main { padding: 28px 16px max(32px,env(safe-area-inset-bottom)); }
+  #mellan-app .top { gap: 20px; margin-bottom: 24px; }
+  #mellan-app .top > div { width: 100%; }
+  #mellan-app h2 { font-size: 34px; letter-spacing: -0.025em; line-height: 1.15; }
+  #mellan-app .top .actions { display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 8px; }
+  #mellan-app .btn, #mellan-app .btn.tiny, #mellan-app .top .actions .btn { min-height: 48px; min-width: 46px; font-size: 15px; padding: 10px 12px; }
+  #mellan-app .grid3 { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  #mellan-app .stat { padding: 22px; border-radius: 26px; }
+  #mellan-app .stat:first-child { grid-column: 1 / -1; min-height: 166px; padding: 26px; }
+  #mellan-app .stat:first-child strong { font-size: clamp(34px, 10vw, 52px); margin: 16px 0px 8px; }
+  #mellan-app .stat strong { font-size: 34px; }
+  #mellan-app .stat .label { font-size: 14px; }
+  #mellan-app .stat small { font-size: 13px; }
+  #mellan-app .columns { display: block; }
+  #mellan-app .panel { padding: 22px 18px; border-radius: 26px; margin-bottom: 18px; }
+  #mellan-app h3 { font-size: 22px; }
+  #mellan-app .sub { font-size: 14px; }
+  #mellan-app .item { display: grid; grid-template-columns: 38px minmax(0px, 1fr) auto; gap: 8px 10px; padding: 18px 0px; }
+  #mellan-app .item .round { grid-row: 1 / 3; }
+  #mellan-app .item .desc { grid-column: 2 / -1; }
+  #mellan-app .item .desc b, #mellan-app .person .who b { font-size: 16px; }
+  #mellan-app .item .desc span, #mellan-app .person .who small { font-size: 13px; }
+  #mellan-app .amount { grid-column: 2; font-size: 17px; white-space: normal; overflow-wrap: anywhere; }
+  #mellan-app .item > .btn { grid-column: 3; }
+  #mellan-app .person { display: grid; grid-template-columns: 38px minmax(0px, 1fr) 46px; gap: 6px 10px; padding: 18px 0px; }
+  #mellan-app .person .round { grid-row: 1 / 3; }
+  #mellan-app .person .who { min-width: 0px !important; }
+  #mellan-app .person .balance { grid-area: 2 / 2; font-size: 17px; white-space: normal; overflow-wrap: anywhere; }
+  #mellan-app .person > .btn { grid-area: 1 / 3 / 3; font-size: 22px; padding: 8px; }
+  #mellan-app .tipform label, #mellan-app .tiprow > label { font-size: 15px; }
+  #mellan-app .notice, #mellan-app .sharedhint { font-size: 14px; }
+  #mellan-app .modal { padding: 26px 20px; border-radius: 28px; }
+  #mellan-app .modal .checkgrid { grid-template-columns: 1fr; }
+  #mellan-app .modal .checkgrid label { font-size: 16px; min-height: 44px; gap: 10px; }
+}
+
+@media (max-width: 760px) {
+  #mellan-app .nav { --nav-base-bottom: 2px; }
+}
+
+#mellan-app { --action-color: #f7d370; }
+
+#mellan-app .participants-panel [data-action="person-add"] { background: rgb(247, 211, 112); border-color: rgb(247, 211, 112); color: rgb(34, 35, 34); }
+
+#mellan-app { --violet: #eee7bf; }
+
+#mellan-app .nav button.on { background: rgb(238, 231, 191); border-color: rgb(238, 231, 191); color: rgb(37, 37, 34); }
+
+#mellan-app .nav button.on span { color: rgb(91, 90, 76); }
+
+#mellan-app .asidehead .btn { color: rgb(34, 35, 34); background: rgb(247, 211, 112) !important; border-color: rgb(247, 211, 112) !important; }
+
+#mellan-app .asidefoot { font-size: 13px; }
+
+#mellan-app .asidehead { font-size: 13px; }
+
+#mellan-app .nav button span { font-size: 14px; }
+
+#mellan-app .eyebrow { font-size: 12px; }
+
+#mellan-app .sub { font-size: 15px; }
+
+#mellan-app .stat .label, #mellan-app .stat small { font-size: 14px; }
+
+#mellan-app .item .desc span, #mellan-app .person .who small { font-size: 14px; }
+
+#mellan-app .settle .detail, #mellan-app .tipform label { font-size: 14px; }
+
+#mellan-app .sharedhint, #mellan-app .notice { font-size: 14px; }
+
+#mellan-app .modal .field > label, #mellan-app .modal .checkgrid label { font-size: 14px; }
+
+#mellan-app button, #mellan-app input, #mellan-app select, #mellan-app textarea { -webkit-tap-highlight-color: transparent; }
+
+#mellan-app button:focus-visible, #mellan-app input:focus-visible, #mellan-app select:focus-visible, #mellan-app textarea:focus-visible { outline-color: rgb(247, 211, 112); box-shadow: none; }
+
+#mellan-app .nav button.on { background: rgb(238, 231, 191) !important; border-color: rgb(238, 231, 191) !important; color: rgb(37, 37, 34) !important; }
+
+#mellan-app .nav button.on span { color: rgb(91, 90, 76) !important; }
+
+#mellan-app .stat:nth-child(n+2) { background: rgb(238, 231, 191) !important; color: rgb(37, 37, 34) !important; }
+
+#mellan-app .stat:nth-child(n+2) .label, #mellan-app .stat:nth-child(n+2) small { color: rgb(69, 68, 56) !important; }
+
+@media (hover: none) {
+  #mellan-app button:focus:not(:focus-visible) { outline: none !important; box-shadow: none !important; }
+}
+
+#mellan-app .settle { background: rgb(238, 231, 191) !important; color: rgb(37, 37, 34) !important; }
+
+#mellan-app .settle b, #mellan-app .settle .detail { color: rgb(69, 68, 56) !important; }
+
+#mellan-app .settle .plus { color: rgb(37, 37, 34) !important; }
+
+#mellan-app .preferences { --preferences-surface: #30322f; --preferences-ink: #fffdf6; --preferences-border: 1px solid #5d6456; --preferences-radius: 16px; --preferences-shadow: 0 12px 30px #0005; --preferences-accent: var(--yellow); }
+
+#mellan-app[data-theme="bold"] .brand strong { font-family: Agbalumo, Arial, sans-serif; font-weight: 400; letter-spacing: normal; transform: translateY(calc(-0.055em - 1px)); }
+
+#mellan-app[data-theme="bold"] .top .actions .btn:not([data-action="share"]) { background: rgb(48, 50, 47) !important; color: rgb(250, 249, 244) !important; border-color: rgb(124, 128, 116) !important; }
+
+#mellan-app[data-theme="bold"] .settle > div, #mellan-app[data-theme="bold"] .settle > .plus { min-width: 0px; overflow-wrap: anywhere; }
+
+#mellan-app[data-theme="bold"] .settle > .plus { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 760px) {
+  #mellan-app[data-theme="bold"] .top { gap: 14px; margin-bottom: 18px; }
+  #mellan-app[data-theme="bold"] .top .actions { display: flex; }
+  #mellan-app[data-theme="bold"] .top .actions .btn { flex: 1 1 auto; padding-inline: 10px; }
+  #mellan-app[data-theme="bold"] .stat:first-child { min-height: 0px; padding: 20px; }
+  #mellan-app[data-theme="bold"] .stat:first-child strong { margin: 8px 0px 4px; }
+  #mellan-app[data-theme="bold"] .nav { padding-inline: 6px; scroll-padding-inline: 6px; }
+}
+
+@media (min-width: 761px) {
+  #mellan-app[data-theme="bold"] .asidehead { margin-bottom: 8px; }
+}
+</style>
+<style data-theme-css="dusk">
+body { background: #1a1730; }
+#mellan-app { --action-color: #f4a77a; color: #ece8ff; background: #24203f; border-color: #3a345e; box-shadow: 0 20px 60px #0006; }
+#mellan-app .aside { background: #19162e; color: #ece8ff; }
+#mellan-app .logo { background: #f4a77a; color: #2a1b3d; }
+#mellan-app .asidehead, #mellan-app .asidefoot, #mellan-app .nav button span { color: #a9a2d0; }
+#mellan-app .nav button { color: #d6d0f7; }
+#mellan-app .nav button.on { background: #3b3466; color: #fff; }
+#mellan-app .main { background: #24203f; }
+#mellan-app h2, #mellan-app h3, #mellan-app .modal h3 { color: #f4f1ff; }
+#mellan-app .sub, #mellan-app .empty, #mellan-app .sharedhint, #mellan-app .notice { color: #b2acd8; }
+#mellan-app .btn { background: #3b3466; color: #f4f1ff; border-color: #4d4580; }
+#mellan-app .btn.primary { background: #f4a77a; border-color: #f4a77a; color: #2a1b3d; }
+#mellan-app .btn.danger { background: #4a2738; color: #ffc2cf; border-color: #6d3a52; }
+#mellan-app .btn.quiet { background: transparent; color: #ece8ff; }
+#mellan-app .stat, #mellan-app .panel { background: #2e2950; border-color: #3d3768; }
+#mellan-app .stat:first-child { background: linear-gradient(135deg, #6b4fd1, #c4629b); border: 0; }
+#mellan-app .stat .label, #mellan-app .stat small { color: #e9e2ff; }
+#mellan-app .item, #mellan-app .person, #mellan-app .settle { border-color: #3d3768; }
+#mellan-app .item .desc b, #mellan-app .person .who b, #mellan-app .settle b { color: #f4f1ff; }
+#mellan-app .item .desc span, #mellan-app .person .who small, #mellan-app .settle .detail { color: #b2acd8; }
+#mellan-app .round { background: #3b3466; color: #f4a77a; }
+#mellan-app .plus { color: #9fe3c0; }
+#mellan-app .minus { color: #ffa9b9; }
+#mellan-app .tipform label, #mellan-app .modal .field > label, #mellan-app .modal .checkgrid label { color: #ddd7fb; }
+#mellan-app input:not([type="checkbox"]), #mellan-app select, #mellan-app textarea { background: #1e1a36; color: #f4f1ff; border-color: #4d4580; color-scheme: dark; }
+#mellan-app input[type="checkbox"] { accent-color: #f4a77a; }
+#mellan-app .modal { background: #2e2950; color: #f4f1ff; }
+#mellan-app .toast { background: #3b3466; color: #ffd9c4; }
+#mellan-app .error { color: #ffa9b9; }
+#mellan-app .preferences { --preferences-surface: #2e2950; --preferences-ink: #f4f1ff; --preferences-border: 1px solid #4d4580; --preferences-accent: #f4a77a; }
+#mellan-app .stat:first-child strong { color: #ffffff; }
+
+</style>
+<style>
+#mellan-app, #mellan-app * { -webkit-tap-highlight-color: transparent; }
+
+#mellan-app .aside .brand { align-items: center; }
+
+#mellan-app .brand .logo { flex-shrink: 0; }
+
+#mellan-app .brand .logo svg, #mellan-app .brand strong { display: block; }
+
+#mellan-app .brand strong { line-height: 1.1; }
+
+#mellan-app { --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23182945' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+
+#mellan-app:is([data-theme="bold"], [data-theme="dusk"]) { --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fffdf6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+
+#mellan-app select { appearance: none; padding-right: 48px !important; background-image: var(--select-chevron) !important; background-position: right 12px center !important; background-size: 22px 22px !important; background-repeat: no-repeat !important; }
+
+#mellan-app select.currency { width: 116px !important; }
+
+@media (forced-colors: active) {
+  #mellan-app select { appearance: auto; background-image: none !important; padding-right: 16px !important; }
+}
+
+#mellan-app .aside { position: relative; }
+
+#mellan-app .preferences { position: absolute; inset-block-start: 16px; inset-inline-end: 16px; z-index: 10; }
+
+#mellan-app .preferences summary { display: grid; place-items: center; width: 40px; height: 40px; list-style: none; cursor: pointer; border: 1px solid transparent; border-radius: var(--preferences-radius,12px); }
+
+#mellan-app .preferences summary::-webkit-details-marker { display: none; }
+
+#mellan-app .preferences[open] summary { border-color: var(--preferences-accent,currentColor); }
+
+@media (hover: hover) and (pointer: fine) {
+  #mellan-app .preferences summary:hover { border-color: var(--preferences-accent,currentColor); }
+}
+
+#mellan-app .preferences summary:focus-visible { outline: 2px solid var(--preferences-accent,currentColor); outline-offset: 2px; }
+
+#mellan-app .preferences-panel { position: absolute; inset-block-start: calc(100% + 6px); inset-inline-end: 0px; width: min(220px, -32px + 100vw); display: grid; gap: 12px; padding: 14px; background: var(--preferences-surface,#fff); color: var(--preferences-ink,#17233b); border: var(--preferences-border,1px solid #cfd9e5); border-radius: var(--preferences-radius,12px); box-shadow: var(--preferences-shadow,0 8px 22px #17233b26); }
+
+#mellan-app .preferences:not([open]) .preferences-panel { display: none; }
+
+#mellan-app .preferences-panel label { display: grid; gap: 4px; font-weight: 600; }
+
+#mellan-app .preferences-panel select { cursor: pointer; }
+
+#mellan-app #design-status { margin: 0px; }
+
+#mellan-app #design-status:empty { display: none; }
+
+#mellan-app .preferences-label { display: none; }
+
+@media (max-width: 760px) {
+  #mellan-app .aside .brand { padding-inline-end: 46px; }
+}
+
+@media (min-width: 761px) {
+  #mellan-app .aside-brand { display: grid; align-content: start; gap: 8px; min-width: 0px; }
+  #mellan-app .preferences { position: relative; inset: auto; justify-self: start; max-width: 100%; }
+  #mellan-app .preferences summary { display: flex; align-items: center; gap: 8px; width: auto; height: auto; min-height: 44px; padding: 6px 8px; font-size: 14px; font-weight: 650; }
+  #mellan-app .preferences summary svg { flex-shrink: 0; }
+  #mellan-app .preferences-label { display: block; min-width: 0px; overflow-wrap: anywhere; }
+  #mellan-app .preferences-panel { inset-inline: 0px auto; }
+}
+
+#mellan-app .participants-panel > .ph { margin-bottom: 0px; align-items: center; }
+
+#mellan-app .people-body { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows 280ms, opacity 200ms; }
+
+#mellan-app .people-inner { min-height: 0px; overflow: hidden; }
+
+#mellan-app .people-grid { padding-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); column-gap: 28px; }
+
+#mellan-app .participants-panel.is-collapsed .people-body { grid-template-rows: 0fr; opacity: 0; }
+
+#mellan-app .participants-panel .person { min-width: 0px; }
+
+@media (max-width: 760px) {
+  #mellan-app .people-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #mellan-app .people-body { transition: none; }
+}
+
+#mellan-app button.btn.people-toggle { display: inline-grid; place-items: center; padding: 0px; width: 48px; height: 48px; flex-shrink: 0; }
+
+#mellan-app .people-toggle svg { display: block; pointer-events: none; }
+
+#mellan-app .grid3 { grid-template-columns: minmax(0px, 1fr) !important; }
+
+#mellan-app .grid3 > .stat { grid-column: 1 / -1; }
+
+#mellan-app .fold-panel > .ph { margin-bottom: 0px; align-items: center; flex-wrap: nowrap; }
+
+#mellan-app .fold-panel.is-collapsed .people-body { grid-template-rows: 0fr; opacity: 0; }
+
+#mellan-app .fold-content { padding-top: 16px; }
+
+#mellan-app .top .actions .btn { background: var(--action-color,#a2e4ee) !important; color: rgb(32, 35, 34) !important; border-color: var(--action-color,#a2e4ee) !important; }
+
+#mellan-app .nav { padding-bottom: calc(var(--nav-base-bottom,0px) + 12px) !important; margin-bottom: -12px; }
+
+#mellan-app .participants-panel .person { display: grid; grid-template-columns: minmax(0px, 1fr) 48px; gap: 7px 12px; align-items: center; }
+
+#mellan-app .participants-panel .person .who { grid-area: 1 / 1; min-width: 0px !important; }
+
+#mellan-app .participants-panel .person .who b { font-size: 22px; line-height: 1.3; overflow-wrap: anywhere; }
+
+#mellan-app .participants-panel .person .balance { grid-area: 2 / 1; white-space: normal; overflow-wrap: anywhere; }
+
+#mellan-app .participants-panel .person > .btn { grid-area: 1 / 2 / 3; }
+
+#mellan-app .item { display: grid; grid-template-columns: minmax(0px, 1fr) auto; gap: 8px 12px; }
+
+#mellan-app .item .desc { grid-area: 1 / 1 / auto / -1; }
+
+#mellan-app .item .desc b { font-size: 18px; line-height: 1.4; }
+
+#mellan-app .item .amount { grid-area: 2 / 1; white-space: normal; overflow-wrap: anywhere; }
+
+#mellan-app .item > .btn { grid-area: 2 / 2; }
+
+:root { view-transition-name: none; }
+
+::view-transition-group(*) { animation-duration: 220ms; animation-timing-function: cubic-bezier(0.2, 0.75, 0.25, 1); }
+
+::view-transition-old(*) { animation: 180ms ease-in 0s 1 normal both running row-out; }
+
+::view-transition-new(*) { animation: 220ms ease-out 0s 1 normal both running row-in; }
+
+@keyframes row-out { 
+  100% { opacity: 0; transform: translateY(-7px) scale(0.985); }
+}
+
+@keyframes row-in { 
+  0% { opacity: 0; transform: translateY(8px) scale(0.99); }
+}
+
+#mellan-app .people-error { margin: 12px 0px 0px; padding: 13px 16px; border-radius: 16px; background: rgb(255, 120, 105); color: rgb(37, 35, 34); font-size: 15px; line-height: 1.45; font-weight: 700; border: 1px solid rgb(232, 108, 95); }
+
+#mellan-app .people-error[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: auto ease 0s 1 normal none running none !important; }
+  #mellan-app .people-error { transition: none; }
+}
+
+#mellan-app .people-grid { grid-template-columns: minmax(0px, 1fr) !important; }
+
+#mellan-app .participants-panel .person { width: 100%; box-sizing: border-box; }
+#mellan-app .modalfooter .btn.danger { margin-right: auto; }
+</style>
+</head>
+<body>
+<div id="mellan-app" data-theme="bold">
+<div class="layout"><aside class="aside">
+<div class="aside-brand"><div class="brand"><div class="logo" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false"><path d="M5.5 12h13" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"></path><circle cx="12" cy="6.5" r="1.95"></circle><circle cx="12" cy="17.5" r="1.95"></circle></svg></div><strong>Split</strong></div>
+<details class="preferences" id="m-preferences">
+  <summary aria-label="Settings" title="Settings">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 2h4l.6 2.5 1.4.8 2.5-.7 2 3.5-1.8 1.8v1.6l1.8 1.8-2 3.5-2.5-.7-1.4.8L14 20h-4l-.6-2.5-1.4-.8-2.5.7-2-3.5 1.8-1.8v-1.6L3.5 8.7l2-3.5 2.5.7 1.4-.8L10 2Z" transform="translate(0 1)"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    <span class="preferences-label">Settings</span>
+  </summary>
+  <div class="preferences-panel">
+    <strong>Settings</strong>
+    <label><span id="lbl-language">Language</span>
+      <select id="language-choice"><option value="sv" lang="sv">Svenska</option><option value="en" lang="en">English</option></select>
+    </label>
+    <label><span id="lbl-theme">Theme</span><select id="design-choice"></select></label>
+    <p id="design-status" class="error" role="status"></p>
+  </div>
+</details>
+</div>
+<div><div class="asidehead"><span id="lbl-mylists">MY LISTS</span> <button class="btn tiny" data-action="new" aria-label="Create a new list">＋</button></div><nav class="nav" id="m-nav"></nav></div>
+<div class="asidefoot"><span id="foot1"></span><br><span id="foot2"></span></div>
+</aside><main class="main"><div id="m-content"></div></main></div><div id="m-overlay"></div>
+</div>
+<script>
+(() => {
+  'use strict';
+  const KEY = 'split-data-v1';
+  const CURRENCIES = ['SEK', 'EUR', 'USD', 'NOK', 'DKK'];
+  const THEMES = ['mobile', 'paper', 'buttons', 'bold', 'dusk'];
+
+  const T = {
+    sv: {
+      myLists: 'MINA LISTOR', newListAria: 'Skapa en ny lista', participantsN: n => `${n} ${n === 1 ? 'deltagare' : 'deltagare'}`,
+      noAccount: 'Utan konto eller databas.', dataLocal: 'Uppgifterna ligger på din enhet när webbläsaren tillåter det.',
+      settings: 'Inställningar', language: 'Språk', theme: 'Tema',
+      themeNames: { mobile: 'Marin', paper: 'Kobolt', buttons: 'Pastell', bold: 'Korall', dusk: 'Skymning' },
+      rename: 'Byt namn', backup: 'Säkerhetskopia', share: 'Dela',
+      total: 'Totala utgifter', inclTip: 'inklusive dricks',
+      participants: 'Deltagare', add: '＋ Lägg till', collapseP: 'Fäll ihop deltagare', expandP: 'Visa deltagare',
+      startAdding: 'Börja med att lägga till deltagare.',
+      expenses: 'Utgifter', newExpense: '＋ Ny utgift', noExpenses: 'Inga utgifter än. Lägg till din första utgift.',
+      settleUp: 'Gör upp', settled: 'Alla är kvitt, eller så har inga utgifter lagts till.',
+      tip: 'Dricks', show: 'Visa', hide: 'Dölj', includeTip: 'Lägg till dricks', type: 'Typ', percent: 'Procent (%)', fixed: 'Fast belopp',
+      value: 'Värde', whoPaysTip: 'Vem betalar dricksen?', updateTip: 'Uppdatera dricks', tipIs: 'Dricks',
+      listSettings: 'Listinställningar', currency: 'Valuta', deleteList: 'Radera lista',
+      savedHint: 'Listan sparas i din webbläsare. Gör en säkerhetskopia för att behålla en kopia.',
+      paid: 'Betalat', shareOf: 'Andel', paidBy: 'Betalt av', splitBetween: 'delas mellan', everyone: 'alla',
+      pays: (a, b) => `${a} betalar ${b}`,
+      cancel: 'Avbryt', save: 'Spara', del: 'Radera', name: 'Namn', description: 'Beskrivning', amount: 'Belopp',
+      whoPaid: 'Vem betalade?', forWhom: 'Vilka ska dela?', edit: 'Ändra', remove: 'Ta bort',
+      addPerson: 'Lägg till deltagare', newExpenseTitle: 'Ny utgift', editExpense: 'Ändra utgift',
+      renameTitle: 'Byt namn på listan', listName: 'Listans namn',
+      confirmDelete: n => `Vill du radera "${n}"? Det går inte att ångra.`,
+      cannotRemove: n => `${n} ingår i en utgift och kan inte tas bort. Ändra eller radera utgiften först.`,
+      duplicate: n => `Det finns redan en deltagare som heter ${n}.`,
+      needName: 'Skriv ett namn.', needAmount: 'Ange ett belopp större än noll.', needDesc: 'Skriv en beskrivning.',
+      needAmong: 'Välj minst en person.',
+      defaultList: 'Våra utgifter', newListName: n => `Ny lista ${n}`,
+      copy: 'Kopiera', copied: 'Kopierat!', download: 'Ladda ner', restore: 'Återställ',
+      backupIntro: 'Här är alla dina listor som text. Spara den någonstans, eller klistra in en tidigare kopia och tryck på Återställ.',
+      restoreBad: 'Texten är inte en giltig säkerhetskopia.', restored: n => `${n} listor återställda.`,
+      shareTitle: 'Dela listan', shareIntro: 'Skicka länken. Mottagaren får en egen kopia av listan i sin webbläsare.',
+      importTitle: 'Importera delad lista', importQ: n => `Vill du lägga till listan "${n}" på den här enheten?`,
+      importBtn: 'Lägg till', imported: 'Listan har lagts till.', importBad: 'Länken kunde inte läsas.',
+      close: 'Stäng'
+    },
+    en: {
+      myLists: 'MY LISTS', newListAria: 'Create a new list', participantsN: n => `${n} participant${n === 1 ? '' : 's'}`,
+      noAccount: 'No account or database.', dataLocal: 'Your data stays on this device when your browser allows it.',
+      settings: 'Settings', language: 'Language', theme: 'Theme',
+      themeNames: { mobile: 'Navy', paper: 'Cobalt', buttons: 'Pastel', bold: 'Coral', dusk: 'Dusk' },
+      rename: 'Rename', backup: 'Backup', share: 'Share',
+      total: 'Total expenses', inclTip: 'including tip',
+      participants: 'Participants', add: '＋ Add', collapseP: 'Collapse participants', expandP: 'Show participants',
+      startAdding: 'Start by adding participants.',
+      expenses: 'Expenses', newExpense: '＋ New expense', noExpenses: 'No expenses yet. Add your first expense.',
+      settleUp: 'Settle up', settled: 'Everyone is settled up, or no expenses have been added.',
+      tip: 'Tip', show: 'Show', hide: 'Hide', includeTip: 'Include a tip', type: 'Type', percent: 'Percentage (%)', fixed: 'Fixed amount',
+      value: 'Value', whoPaysTip: 'Who pays the tip?', updateTip: 'Update tip', tipIs: 'Tip',
+      listSettings: 'List settings', currency: 'Currency', deleteList: 'Delete list',
+      savedHint: 'This list is saved in your browser. Use a backup to keep a copy.',
+      paid: 'Paid', shareOf: 'Share', paidBy: 'Paid by', splitBetween: 'split between', everyone: 'everyone',
+      pays: (a, b) => `${a} pays ${b}`,
+      cancel: 'Cancel', save: 'Save', del: 'Delete', name: 'Name', description: 'Description', amount: 'Amount',
+      whoPaid: 'Who paid?', forWhom: 'Split between', edit: 'Edit', remove: 'Remove',
+      addPerson: 'Add participant', newExpenseTitle: 'New expense', editExpense: 'Edit expense',
+      renameTitle: 'Rename list', listName: 'List name',
+      confirmDelete: n => `Delete "${n}"? This cannot be undone.`,
+      cannotRemove: n => `${n} is part of an expense and can't be removed. Edit or delete the expense first.`,
+      duplicate: n => `There is already a participant called ${n}.`,
+      needName: 'Enter a name.', needAmount: 'Enter an amount above zero.', needDesc: 'Enter a description.',
+      needAmong: 'Pick at least one person.',
+      defaultList: 'Our expenses', newListName: n => `New list ${n}`,
+      copy: 'Copy', copied: 'Copied!', download: 'Download', restore: 'Restore',
+      backupIntro: 'All your lists as text. Save it somewhere, or paste an earlier copy and tap Restore.',
+      restoreBad: "That text isn't a valid backup.", restored: n => `${n} lists restored.`,
+      shareTitle: 'Share list', shareIntro: 'Send the link. The recipient gets their own copy of the list in their browser.',
+      importTitle: 'Import shared list', importQ: n => `Add the list "${n}" to this device?`,
+      importBtn: 'Add', imported: 'The list was added.', importBad: "The link couldn't be read.",
+      close: 'Close'
+    }
+  };
+
+  // ---------- state ----------
+  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+  let mem = null;
+  function load() {
+    try { const s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
+    return mem;
+  }
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { mem = S; }
+  }
+  const navLang = (navigator.language || 'en').toLowerCase().startsWith('sv') ? 'sv' : 'en';
+  let S = load() || { lists: [], current: null, lang: navLang, theme: 'bold', ui: { people: true, tip: false, settings: false } };
+  S.ui = S.ui || { people: true, tip: false, settings: false };
+  const t = () => T[S.lang] || T.en;
+
+  function blankList(name) {
+    return { id: uid(), name, currency: 'SEK', people: [], expenses: [], tip: { enabled: false, mode: 'percent', value: 10, payer: null } };
+  }
+  function ensure() {
+    if (!S.lists.length) S.lists.push(blankList(t().defaultList));
+    if (!S.lists.find(l => l.id === S.current)) S.current = S.lists[0].id;
+  }
+  const cur = () => S.lists.find(l => l.id === S.current);
+
+  // ---------- helpers ----------
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const num = v => { const n = parseFloat(String(v).replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? n : NaN; };
+  const money = (v, list) => {
+    try { return new Intl.NumberFormat(S.lang === 'sv' ? 'sv-SE' : 'en-US', { style: 'currency', currency: list.currency, currencyDisplay: 'code' }).format(v); }
+    catch (e) { return `${list.currency} ${v.toFixed(2)}`; }
+  };
+  const pname = (list, id) => (list.people.find(p => p.id === id) || { name: '?' }).name;
+
+  function calc(list) {
+    const paid = {}, owed = {};
+    list.people.forEach(p => { paid[p.id] = 0; owed[p.id] = 0; });
+    let sum = 0;
+    list.expenses.forEach(e => {
+      sum += e.amount;
+      if (paid[e.payer] !== undefined) paid[e.payer] += e.amount;
+      const among = e.among.filter(id => owed[id] !== undefined);
+      among.forEach(id => { owed[id] += e.amount / among.length; });
+    });
+    let tip = 0;
+    const tp = list.tip;
+    if (tp.enabled && list.people.length) {
+      tip = tp.mode === 'percent' ? sum * (Number(tp.value) || 0) / 100 : (Number(tp.value) || 0);
+      const payer = paid[tp.payer] !== undefined ? tp.payer : list.people[0].id;
+      paid[payer] += tip;
+      list.people.forEach(p => { owed[p.id] += tip / list.people.length; });
+    }
+    const bal = {};
+    list.people.forEach(p => { bal[p.id] = paid[p.id] - owed[p.id]; });
+    // greedy settle
+    const cr = [], db = [];
+    list.people.forEach(p => {
+      const b = Math.round(bal[p.id] * 100) / 100;
+      if (b > 0.004) cr.push({ id: p.id, v: b }); else if (b < -0.004) db.push({ id: p.id, v: -b });
+    });
+    cr.sort((a, b) => b.v - a.v); db.sort((a, b) => b.v - a.v);
+    const tx = [];
+    let i = 0, j = 0;
+    while (i < db.length && j < cr.length) {
+      const v = Math.min(db[i].v, cr[j].v);
+      if (v > 0.004) tx.push({ from: db[i].id, to: cr[j].id, v });
+      db[i].v -= v; cr[j].v -= v;
+      if (db[i].v < 0.005) i++;
+      if (cr[j].v < 0.005) j++;
+    }
+    return { sum, tip, total: sum + tip, paid, owed, bal, tx };
+  }
+
+  // ---------- render ----------
+  const $ = s => document.querySelector(s);
+  const app = $('#mellan-app');
+  const chevUp = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 15l6-6 6 6"></path></svg>';
+  const chevDown = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"></path></svg>';
+
+  function applyTheme() {
+    if (!THEMES.includes(S.theme)) S.theme = 'bold';
+    app.dataset.theme = S.theme;
+    document.querySelectorAll('style[data-theme-css]').forEach(st => { st.disabled = st.dataset.themeCss !== S.theme; });
+  }
+
+  function renderStatic() {
+    const L = t();
+    document.documentElement.lang = S.lang;
+    app.lang = S.lang;
+    $('.preferences summary').setAttribute('aria-label', L.settings);
+    $('.preferences summary').title = L.settings;
+    $('.preferences-label').textContent = L.settings;
+    $('.preferences-panel strong').textContent = L.settings;
+    $('#lbl-language').textContent = L.language;
+    $('#lbl-theme').textContent = L.theme;
+    $('#language-choice').value = S.lang;
+    const dc = $('#design-choice');
+    dc.innerHTML = THEMES.map(th => `<option value="${th}"${th === S.theme ? ' selected' : ''}>${esc(L.themeNames[th])}</option>`).join('');
+    $('#lbl-mylists').textContent = L.myLists;
+    $('[data-action="new"]').setAttribute('aria-label', L.newListAria);
+    $('#foot1').textContent = L.noAccount;
+    $('#foot2').textContent = L.dataLocal;
+  }
+
+  function fold(id, title, body) {
+    const open = !!S.ui[id];
+    return `<section class="panel fold-panel ${open ? '' : 'is-collapsed'}" id="m-fold-${id}"><div class="ph"><h3>${esc(title)}</h3><button type="button" class="btn tiny quiet people-toggle" data-action="fold-toggle" data-id="${id}" aria-expanded="${open}" aria-controls="m-fold-body-${id}" aria-label="${esc((open ? t().hide : t().show) + ' ' + title)}" title="${esc((open ? t().hide : t().show) + ' ' + title)}">${open ? chevUp : chevDown}</button></div><div class="people-body" id="m-fold-body-${id}" ${open ? '' : 'inert'}><div class="people-inner"><div class="fold-content">${body}</div></div></div></section>`;
+  }
+
+  function render() {
+    ensure();
+    const L = t(), list = cur(), c = calc(list);
+    $('#m-nav').innerHTML = S.lists.map(l =>
+      `<button data-action="open" data-id="${l.id}" class="${l.id === S.current ? 'on' : ''}"><b>${esc(l.name)}</b><span>${esc(L.participantsN(l.people.length))}</span></button>`).join('');
+
+    const people = list.people.length ? list.people.map(p => {
+      const b = c.bal[p.id], r = Math.round(b * 100) / 100;
+      const cls = r > 0 ? 'plus' : r < 0 ? 'minus' : '';
+      return `<div class="person"><div class="who"><b>${esc(p.name)}</b><small>${esc(L.paid)} ${esc(money(c.paid[p.id], list))} · ${esc(L.shareOf)} ${esc(money(c.owed[p.id], list))}</small></div><span class="balance ${cls}">${r > 0 ? '+' : ''}${esc(money(r, list))}</span><button class="btn tiny quiet" data-action="person-remove" data-id="${p.id}" aria-label="${esc(L.remove + ' ' + p.name)}" title="${esc(L.remove)}">×</button></div>`;
+    }).join('') : `<div class="empty">${esc(L.startAdding)}</div>`;
+
+    const expenses = list.expenses.length ? list.expenses.slice().reverse().map(e => {
+      const among = e.among.length === list.people.length ? L.everyone : e.among.map(id => pname(list, id)).join(', ');
+      return `<div class="item"><div class="desc"><b>${esc(e.desc)}</b><span>${esc(L.paidBy)} ${esc(pname(list, e.payer))} · ${esc(L.splitBetween)} ${esc(among)}</span></div><span class="amount">${esc(money(e.amount, list))}</span><button class="btn tiny" data-action="expense-edit" data-id="${e.id}">${esc(L.edit)}</button></div>`;
+    }).join('') : `<div class="empty">${esc(L.noExpenses)}</div>`;
+
+    const settle = c.tx.length ? c.tx.map(x =>
+      `<div class="settle"><div><b>${esc(pname(list, x.from))} → ${esc(pname(list, x.to))}</b><div class="detail">${esc(L.pays(pname(list, x.from), pname(list, x.to)))}</div></div><span class="plus">${esc(money(x.v, list))}</span></div>`).join('')
+      : `<div class="empty">${esc(L.settled)}</div>`;
+
+    const tp = list.tip, noPeople = !list.people.length;
+    const tipBody = `<form id="m-tip" class="tipform"><label class="checkbox"><input type="checkbox" name="enabled" ${tp.enabled ? 'checked' : ''} ${noPeople ? 'disabled' : ''}> ${esc(L.includeTip)}</label><div class="tiprow"><div><label>${esc(L.type)}<select name="mode"><option value="percent" ${tp.mode === 'percent' ? 'selected' : ''}>${esc(L.percent)}</option><option value="fixed" ${tp.mode === 'fixed' ? 'selected' : ''}>${esc(L.fixed)}</option></select></label></div><div><label>${esc(L.value)}<input name="value" inputmode="decimal" value="${esc(tp.value)}"></label></div></div><div><label>${esc(L.whoPaysTip)}<select name="payer">${list.people.map(p => `<option value="${p.id}" ${p.id === tp.payer ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label></div><div class="actions"><button class="btn tiny primary" type="submit">${esc(L.updateTip)}</button></div><span class="sub">${esc(L.tipIs)}: ${esc(money(c.tip, list))}</span></form>`;
+
+    const settingsBody = `<div class="tiprow"><label>${esc(L.currency)} <select id="m-currency" class="currency">${CURRENCIES.map(cu => `<option ${cu === list.currency ? 'selected' : ''}>${cu}</option>`).join('')}</select></label><button class="btn tiny danger" data-action="delete-list">${esc(L.deleteList)}</button></div><p class="sharedhint">${esc(L.savedHint)}</p>`;
+
+    const pOpen = S.ui.people !== false;
+    $('#m-content').innerHTML =
+      `${toastMsg ? `<div class="toast" role="status">${esc(toastMsg)}</div>` : ''}<header class="top"><div><h2>${esc(list.name)}</h2></div><div class="actions"><button class="btn" data-action="rename">${esc(L.rename)}</button><button class="btn" data-action="backup">${esc(L.backup)}</button><button class="btn" data-action="share">${esc(L.share)}</button></div></header>
+      <div class="grid3"><div class="stat"><span class="label">${esc(L.total)}</span><strong>${esc(money(c.total, list))}</strong>${c.tip > 0 ? `<small>${esc(L.inclTip)} (${esc(money(c.tip, list))})</small>` : `<small>${esc(L.inclTip)}</small>`}</div></div>
+      <section class="panel participants-panel ${pOpen ? '' : 'is-collapsed'}" id="m-people"><div class="ph"><h3>${esc(L.participants)} <span class="sub">(${list.people.length})</span></h3><div class="actions"><button class="btn tiny" data-action="person-add">${esc(L.add)}</button><button class="btn tiny quiet people-toggle" data-action="people-toggle" aria-label="${esc(pOpen ? L.collapseP : L.expandP)}" title="${esc(pOpen ? L.collapseP : L.expandP)}" aria-expanded="${pOpen}" aria-controls="m-people-body">${pOpen ? chevUp : chevDown}</button></div></div><p class="people-error" id="m-people-error" role="alert" hidden></p><div id="m-people-body" class="people-body" ${pOpen ? '' : 'inert'}><div class="people-inner"><div class="people-grid">${people}</div></div></div></section>
+      <div class="columns"><div><section class="panel"><div class="ph"><h3>${esc(L.expenses)}</h3><button class="btn tiny primary" data-action="expense-add" ${noPeople ? 'disabled' : ''}>${esc(L.newExpense)}</button></div>${expenses}</section><section class="panel"><div class="ph"><h3>${esc(L.settleUp)}</h3></div>${settle}</section></div><div>${fold('tip', L.tip, tipBody)}${fold('settings', L.listSettings, settingsBody)}</div></div>`;
+    toastMsg = '';
+  }
+
+  let toastMsg = '';
+  function update(fn, msg) {
+    const go = () => { if (fn) fn(); persist(); if (msg) toastMsg = msg; render(); };
+    if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(go);
+    else go();
+  }
+  function peopleError(msg) {
+    const el = $('#m-people-error'); if (!el) return;
+    el.textContent = msg; el.hidden = false;
+    clearTimeout(peopleError.t); peopleError.t = setTimeout(() => { el.hidden = true; }, 5000);
+  }
+
+  // ---------- modals ----------
+  const overlay = $('#m-overlay');
+  let lastFocus = null;
+  function modal(html, onSubmit, onReady) {
+    lastFocus = document.activeElement;
+    overlay.innerHTML = `<div class="modalbg"><form class="modal" role="dialog" aria-modal="true" novalidate>${html}</form></div>`;
+    const form = overlay.querySelector('form');
+    form.addEventListener('submit', e => { e.preventDefault(); if (onSubmit) onSubmit(form); });
+    overlay.querySelector('.modalbg').addEventListener('click', e => { if (e.target.classList.contains('modalbg')) closeModal(); });
+    form.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeModal));
+    if (onReady) onReady(form);
+    const f = form.querySelector('input:not([type=checkbox]), textarea, select, button');
+    if (f) f.focus();
+  }
+  function closeModal() { overlay.innerHTML = ''; if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.innerHTML) closeModal(); });
+  const footer = (ok, extra = '') => `<div class="modalfooter">${extra}<button type="button" class="btn" data-close>${esc(t().cancel)}</button><button type="submit" class="btn primary">${esc(ok)}</button></div>`;
+  const errEl = '<p class="error" role="alert" data-err></p>';
+  const setErr = (form, m) => { form.querySelector('[data-err]').textContent = m; };
+
+  function personModal() {
+    const L = t(), list = cur();
+    modal(`<h3>${esc(L.addPerson)}</h3><div class="field"><label for="f-name">${esc(L.name)}</label><input id="f-name" name="name" autocomplete="off" maxlength="60"></div>${errEl}${footer(L.add.replace('＋ ', ''))}`, form => {
+      const name = form.name.value.trim();
+      if (!name) return setErr(form, L.needName);
+      if (list.people.some(p => p.name.toLowerCase() === name.toLowerCase())) return setErr(form, L.duplicate(name));
+      closeModal();
+      update(() => {
+        const p = { id: uid(), name };
+        list.people.push(p);
+        list.expenses.forEach(e => { if (e.allPeople) e.among.push(p.id); });
+        if (!list.tip.payer) list.tip.payer = p.id;
+      });
+      setTimeout(() => { const b = $('[data-action="person-add"]'); if (b) b.focus(); }, 0);
+    });
+  }
+
+  function expenseModal(exp) {
+    const L = t(), list = cur();
+    const e = exp || { desc: '', amount: '', payer: list.people[0].id, among: list.people.map(p => p.id) };
+    modal(`<h3>${esc(exp ? L.editExpense : L.newExpenseTitle)}</h3>
+      <div class="field"><label for="f-desc">${esc(L.description)}</label><input id="f-desc" name="desc" value="${esc(e.desc)}" maxlength="80" autocomplete="off"></div>
+      <div class="field"><label for="f-amount">${esc(L.amount)} (${esc(list.currency)})</label><input id="f-amount" name="amount" inputmode="decimal" value="${e.amount === '' ? '' : esc(String(e.amount).replace('.', S.lang === 'sv' ? ',' : '.'))}" autocomplete="off"></div>
+      <div class="field"><label for="f-payer">${esc(L.whoPaid)}</label><select id="f-payer" name="payer">${list.people.map(p => `<option value="${p.id}" ${p.id === e.payer ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>${esc(L.forWhom)}</label><div class="checkgrid">${list.people.map(p => `<label><input type="checkbox" name="among" value="${p.id}" ${e.among.includes(p.id) ? 'checked' : ''}> ${esc(p.name)}</label>`).join('')}</div></div>
+      ${errEl}${footer(L.save, exp ? `<button type="button" class="btn danger" data-del style="margin-right:auto">${esc(L.del)}</button>` : '')}`,
+      form => {
+        const desc = form.desc.value.trim(), amount = num(form.amount.value);
+        const among = [...form.querySelectorAll('[name=among]:checked')].map(i => i.value);
+        if (!desc) return setErr(form, L.needDesc);
+        if (!(amount > 0)) return setErr(form, L.needAmount);
+        if (!among.length) return setErr(form, L.needAmong);
+        closeModal();
+        update(() => {
+          const data = { desc, amount: Math.round(amount * 100) / 100, payer: form.payer.value, among, allPeople: among.length === list.people.length };
+          if (exp) Object.assign(exp, data); else list.expenses.push({ id: uid(), date: Date.now(), ...data });
+        });
+      },
+      form => {
+        const d = form.querySelector('[data-del]');
+        if (d) d.addEventListener('click', () => { closeModal(); update(() => { list.expenses = list.expenses.filter(x => x.id !== exp.id); }); });
+      });
+  }
+
+  function renameModal() {
+    const L = t(), list = cur();
+    modal(`<h3>${esc(L.renameTitle)}</h3><div class="field"><label for="f-lname">${esc(L.listName)}</label><input id="f-lname" name="lname" value="${esc(list.name)}" maxlength="60"></div>${errEl}${footer(L.save)}`, form => {
+      const n = form.lname.value.trim();
+      if (!n) return setErr(form, L.needName);
+      closeModal(); update(() => { list.name = n; });
+    }, form => form.lname.select());
+  }
+
+  async function copyText(text, btn) {
+    try { await navigator.clipboard.writeText(text); }
+    catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (_) {} ta.remove(); }
+    if (btn) { const o = btn.textContent; btn.textContent = t().copied; setTimeout(() => { btn.textContent = o; }, 1500); }
+  }
+
+  function backupModal() {
+    const L = t();
+    const json = JSON.stringify({ app: 'split', version: 1, lists: S.lists }, null, 2);
+    modal(`<h3>${esc(L.backup)}</h3><p class="notice">${esc(L.backupIntro)}</p><textarea name="data" spellcheck="false" aria-label="${esc(L.backup)}">${esc(json)}</textarea>${errEl}
+      <div class="modalfooter"><button type="button" class="btn" data-copy>${esc(L.copy)}</button><button type="button" class="btn" data-dl>${esc(L.download)}</button><button type="button" class="btn" data-close>${esc(L.close)}</button><button type="submit" class="btn primary">${esc(L.restore)}</button></div>`,
+      form => {
+        let data;
+        try { data = JSON.parse(form.data.value); } catch (e) { return setErr(form, L.restoreBad); }
+        const lists = Array.isArray(data) ? data : data && data.lists;
+        if (!Array.isArray(lists) || !lists.every(validList)) return setErr(form, L.restoreBad);
+        closeModal();
+        update(() => {
+          lists.forEach(l => { const i = S.lists.findIndex(x => x.id === l.id); if (i >= 0) S.lists[i] = l; else S.lists.push(l); });
+          S.current = lists[0] ? lists[0].id : S.current;
+        }, L.restored(lists.length));
+      },
+      form => {
+        form.querySelector('[data-copy]').addEventListener('click', e => copyText(form.data.value, e.currentTarget));
+        form.querySelector('[data-dl]').addEventListener('click', () => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([form.data.value], { type: 'application/json' }));
+          a.download = `split-backup-${new Date().toISOString().slice(0, 10)}.json`;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        });
+      });
+  }
+
+  function validList(l) {
+    return l && typeof l.name === 'string' && Array.isArray(l.people) && Array.isArray(l.expenses)
+      && l.people.every(p => p && typeof p.id === 'string' && typeof p.name === 'string')
+      && l.expenses.every(e => e && typeof e.amount === 'number' && Array.isArray(e.among))
+      && (l.id = l.id || uid()) && (l.currency = CURRENCIES.includes(l.currency) ? l.currency : 'SEK')
+      && (l.tip = l.tip || { enabled: false, mode: 'percent', value: 10, payer: null });
+  }
+
+  // base64url for UTF-8
+  const enc = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
+
+  async function share() {
+    const L = t(), list = cur();
+    const url = `${location.origin}${location.pathname}#import=${enc(JSON.stringify(list))}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: list.name, url }); return; } catch (e) { if (e.name === 'AbortError') return; }
+    }
+    modal(`<h3>${esc(L.shareTitle)}</h3><p class="notice">${esc(L.shareIntro)}</p><textarea name="link" readonly spellcheck="false">${esc(url)}</textarea>
+      <div class="modalfooter"><button type="button" class="btn" data-close>${esc(L.close)}</button><button type="submit" class="btn primary">${esc(L.copy)}</button></div>`,
+      form => copyText(url, form.querySelector('[type=submit]')));
+  }
+
+  function checkImport() {
+    const m = location.hash.match(/^#import=([\w-]+)/);
+    if (!m) return;
+    history.replaceState(null, '', location.pathname + location.search);
+    const L = t();
+    let list;
+    try { list = JSON.parse(dec(m[1])); if (!validList(list)) throw 0; } catch (e) { toastMsg = L.importBad; render(); return; }
+    modal(`<h3>${esc(L.importTitle)}</h3><p class="notice">${esc(L.importQ(list.name))}</p>${footer(L.importBtn)}`, () => {
+      closeModal();
+      update(() => {
+        const existing = S.lists.findIndex(x => x.id === list.id);
+        if (existing >= 0) S.lists[existing] = list; else S.lists.push(list);
+        S.current = list.id;
+      }, L.imported);
+    });
+  }
+
+  function deleteModal() {
+    const L = t(), list = cur();
+    modal(`<h3>${esc(L.deleteList)}</h3><p class="notice">${esc(L.confirmDelete(list.name))}</p>${footer(L.del)}`, () => {
+      closeModal();
+      update(() => { S.lists = S.lists.filter(l => l.id !== list.id); S.current = S.lists[0] ? S.lists[0].id : null; });
+    }, form => { form.querySelector('[type=submit]').classList.replace('primary', 'danger'); });
+  }
+
+  // ---------- events ----------
+  app.addEventListener('click', e => {
+    const b = e.target.closest('[data-action]');
+    if (!b || overlay.contains(b)) return;
+    const a = b.dataset.action, list = cur();
+    switch (a) {
+      case 'new': update(() => { const l = blankList(t().newListName(S.lists.length + 1)); S.lists.push(l); S.current = l.id; }); setTimeout(renameModal, 0); break;
+      case 'open': update(() => { S.current = b.dataset.id; }); break;
+      case 'rename': renameModal(); break;
+      case 'backup': backupModal(); break;
+      case 'share': share(); break;
+      case 'person-add': personModal(); break;
+      case 'person-remove': {
+        const id = b.dataset.id, p = list.people.find(x => x.id === id);
+        if (list.expenses.some(x => x.payer === id || (x.among.includes(id) && !x.allPeople) || (x.allPeople && x.among.length === 1 && x.among[0] === id))) return peopleError(t().cannotRemove(p.name));
+        update(() => {
+          list.people = list.people.filter(x => x.id !== id);
+          list.expenses.forEach(x => { x.among = x.among.filter(y => y !== id); });
+          if (list.tip.payer === id) list.tip.payer = list.people[0] ? list.people[0].id : null;
+        });
+        break;
+      }
+      case 'people-toggle': update(() => { S.ui.people = S.ui.people === false; }); break;
+      case 'fold-toggle': update(() => { S.ui[b.dataset.id] = !S.ui[b.dataset.id]; }); break;
+      case 'expense-add': if (list.people.length) expenseModal(); break;
+      case 'expense-edit': expenseModal(list.expenses.find(x => x.id === b.dataset.id)); break;
+      case 'delete-list': deleteModal(); break;
+    }
+  });
+
+  app.addEventListener('submit', e => {
+    if (e.target.id !== 'm-tip') return;
+    e.preventDefault();
+    const f = e.target, list = cur(), v = num(f.value.value);
+    update(() => {
+      list.tip = { enabled: f.enabled.checked, mode: f.mode.value, value: isFinite(v) && v >= 0 ? v : 0, payer: f.payer.value || null };
+    });
+  });
+  app.addEventListener('change', e => {
+    const el = e.target;
+    if (el.id === 'm-currency') update(() => { cur().currency = el.value; });
+    else if (el.id === 'language-choice') { S.lang = el.value; persist(); renderStatic(); render(); }
+    else if (el.id === 'design-choice') { S.theme = el.value; persist(); applyTheme(); }
+    else if (el.name === 'enabled' && el.closest('#m-tip')) el.form.requestSubmit();
+  });
+
+  // ---------- boot ----------
+  ensure(); persist(); applyTheme(); renderStatic(); render(); checkImport();
+  window.addEventListener('hashchange', checkImport);
+  app.dataset.ready = '1';
+})();
+
+</script>
+</body>
+</html>
