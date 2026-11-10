@@ -19,6 +19,7 @@
   --pos: #1f6b49; --neg: #b23a2c; --cta: #222322; --cta-ink: #f7d370; --chip-on: #222322; --chip-on-ink: #ffffff;
   --coral: #ff7869; --coral-in: #fff4ef; --ok: #2c6e4f; --bad: #9c3527; --yellow: #f7d370;
   --shadow: 0 8px 24px rgba(34,35,34,.18); --sheet-bg: rgba(20,20,18,.55);
+  --outer: #d4ccb6; --panel-line: #c9c1ab; --panel-shadow: 0 20px 60px rgba(60,50,30,.18);
   color-scheme: light;
 }
 :root[data-mode="dark"] {
@@ -26,6 +27,7 @@
   --line: #3a3c38; --btn-line: #5a5e55; --input-line: #7d8176; --input-bg: #222322; --seg: #121312; --seg-on: #3a3c38;
   --pos: #a8e0bf; --neg: #ffb2a6; --cta: #f7d370; --cta-ink: #222322; --chip-on: #f7d370; --chip-on-ink: #222322;
   --coral-in: #ffe3dc; --ok: #2c6e4f; --bad: #9c3527; --shadow: 0 8px 24px rgba(0,0,0,.45); --sheet-bg: rgba(0,0,0,.6);
+  --outer: #0f100f; --panel-line: #2e302d; --panel-shadow: 0 20px 60px rgba(0,0,0,.5);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -186,6 +188,13 @@ details.more .inner { display: flex; flex-direction: column; gap: 14px; padding:
 .toast { animation-name: tup; } @keyframes tup { from { transform: translate(-50%, 16px); opacity: 0; } }
 @keyframes fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+/* desktop: the app sits on its own panel */
+@media (min-width: 640px) {
+  body { background: var(--outer); }
+  .app { margin: 32px auto; background: var(--bg); border: 1px solid var(--panel-line); border-radius: 32px; padding: 28px 28px 150px; min-height: calc(100dvh - 64px); box-shadow: var(--panel-shadow); }
+  .chips { margin: 0 -28px; padding: 2px 28px; }
+  .ctabar { left: 50%; right: auto; width: 518px; transform: translateX(-50%); bottom: 33px; padding: 16px 28px 24px; border-radius: 0 0 31px 31px; }
+}
 @media (max-width: 360px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); } .amountline input { font-size: 46px; } h1 { font-size: 28px; } }
 </style>
 </head>
