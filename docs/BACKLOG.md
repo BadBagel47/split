@@ -4,11 +4,16 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ## Open
 
-(none)
+### B-012 – "Cancel" in the add-participant sheet is confusing
+- Priority: Low
+- Status: Proposed, awaiting go-ahead.
+- After adding a participant the sheet reopens for the next one, so the way out is "Cancel" even though people were added.
+- Proposed fix: in add mode (only after at least one participant has been added in this round), label the button "Done". If the name field has text when Done is tapped, add that person first, then close. Editing an existing participant keeps "Cancel".
 
 ## Proposed runs
 
-(none)
+- **A** – Sonnet, low – Add-participant sheet
+  - B-012 – "Done" instead of "Cancel" when adding participants
 
 ## Done
 
