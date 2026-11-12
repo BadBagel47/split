@@ -20,7 +20,7 @@ Rules version: 1.0
 
 ## Current state
 - v2 design is live.
-- Next: F-001 Swish payments in the settle-up view (see BACKLOG.md), awaiting go-ahead and answers to open questions.
+- Next: F-001 Swish payments in the settle-up view (see BACKLOG.md), awaiting go-ahead.
 
 ## Notes
-- Personal data: any per-person data added to a list (e.g. phone numbers for Swish) ends up in share links and backups. Keep that in mind when adding fields.
+- Personal data: any per-person data added to a list (e.g. phone numbers for Swish) ends up in share links and backups. Keep that in mind when adding fields. The user approved including Swish numbers in share links and backups (2026-11-12).

@@ -6,7 +6,7 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ### F-001 – Swish payments when settling up
 - Priority: Medium
-- Status: Proposed, awaiting go-ahead and answers to open questions.
+- Status: Ready, awaiting go-ahead.
 - Goal: In the settle-up view, let the payer open Swish with recipient, amount and message prefilled.
 - Proposal:
   - Optional Swish number per person (person sheet). Validate Swedish mobile numbers (07x…, +467x…) and Swish business numbers (123…).
@@ -14,9 +14,9 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
   - Mobile: open the Swish app via the `swish://payment?data=…` deep link (payee, amount, message = list name, editable).
   - Desktop: show a QR code the payer scans with the Swish app (generated locally, no external service).
   - Payment is still confirmed manually with "Paid" (Swish gives no callback to private web apps).
-- Open questions:
-  - Should phone numbers be included in share links and backups? (Share links put the data in the URL.)
-  - QR code on desktop: include it (adds a small built-in QR generator, ~3–4 kB) or mobile-only?
+- Decisions (2026-11-12):
+  - Swish numbers are included in share links and backups (user approved; share links put them in the URL).
+  - Desktop shows a QR code to scan with the phone (built-in QR generator, no external service).
 
 ## Proposed runs
 
