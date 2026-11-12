@@ -12,7 +12,7 @@ Rules version: 1.0
 
 ## Project
 - Split: split expenses, calculate tips and settle up. Mobile-first web app.
-- The whole app is a single file: `index.html` (HTML, CSS and JS). No build step, no dependencies.
+- The whole app is a single file: `index.html` (HTML, CSS and JS). No build step, no dependencies. Fonts are self-hosted in `fonts/` (no external requests).
 - All data is stored locally in the browser (`localStorage`). No accounts, no backend.
 - UI languages: Swedish and English (string tables near the top of the script).
 - Lists can be shared via a link (`#import=` + base64url-encoded list JSON) and backed up as JSON.
@@ -25,7 +25,8 @@ Rules version: 1.0
 - B-002, B-003, B-004 (partial), B-006 and B-007 done 2026-11-12.
 - F-008 dates as YYYY-MM-DD done 2026-11-12.
 - F-009 logo wordmark nudge done 2026-11-12.
-- Next: B-010 font flash on load, awaiting go-ahead. B-005 is parked.
+- B-010 font flash fixed 2026-11-12 (self-hosted fonts).
+- Next: nothing planned. B-005 is parked.
 
 ## Notes
 - Personal data: any per-person data added to a list (e.g. phone numbers for Swish) ends up in share links and backups. Keep that in mind when adding fields. The user approved including Swish numbers in share links and backups (2026-11-12).

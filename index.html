@@ -9,10 +9,14 @@
 <meta name="theme-color" content="#1b1c1b" media="(prefers-color-scheme: dark)">
 <title>Split</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='12' fill='%23f7d370'/%3E%3Cpath d='M5.5 12h13' stroke='%23222' stroke-width='3.2' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='6.5' r='1.95' fill='%23222'/%3E%3Ccircle cx='12' cy='17.5' r='1.95' fill='%23222'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Agbalumo&family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/agbalumo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* Self-hosted fonts (SIL Open Font License, see fonts/OFL-*.txt) */
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(fonts/inter-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(fonts/inter-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Agbalumo'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/agbalumo-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+html.fl .app, html.fl #cta { visibility: hidden; }
 :root {
   --bg: #e8e2d2; --card: #ffffff; --card-line: #d6cfbb; --ink: #222322; --muted: #5f5b50; --muted2: #625e51;
   --line: #eee9dc; --btn-line: #c9c1ac; --input-line: #8f8a7b; --input-bg: #fbfaf6; --seg: #d8d0bb; --seg-on: #ffffff;
@@ -211,6 +215,19 @@ a.pill { color: var(--ink); display: inline-flex; align-items: center; justify-c
 }
 @media (max-width: 360px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); } .amountline input { font-size: 46px; } h1 { font-size: 28px; } }
 </style>
+<script>
+// Hide the app until the fonts are ready (max 1 s) so the fallback font never flashes.
+// Must run after the @font-face rules above, or fonts.load() finds nothing to wait for.
+(function () {
+  var d = document.documentElement, done = function () { d.classList.remove('fl'); };
+  if (!document.fonts || !document.fonts.load) return;
+  d.classList.add('fl');
+  Promise.race([
+    Promise.all([document.fonts.load('400 16px Inter'), document.fonts.load('30px Agbalumo')]),
+    new Promise(function (r) { setTimeout(r, 1000); })
+  ]).then(done, done);
+})();
+</script>
 </head>
 <body>
 <main class="app" id="app" aria-live="off"></main>
