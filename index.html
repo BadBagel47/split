@@ -45,6 +45,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .brand { display: flex; align-items: center; gap: 10px; }
 .logo { width: 40px; height: 40px; border-radius: 50%; background: var(--yellow); color: #222322; display: grid; place-items: center; flex-shrink: 0; }
 .brand span { font-family: Agbalumo, Arial, sans-serif; font-size: 30px; line-height: 1; }
+.brand .word { position: relative; top: -2px; }
 .iconbtn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--btn-line); background: var(--card); display: grid; place-items: center; flex-shrink: 0; padding: 0; }
 .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 2px 20px; }
 .chips::-webkit-scrollbar { display: none; }
@@ -626,7 +627,7 @@ function renderList() {
   }
 
   app.innerHTML = `
-    <div class="top"><div class="brand"><span class="logo">${ICON.logo}</span><span>Split</span></div>
+    <div class="top"><div class="brand"><span class="logo">${ICON.logo}</span><span class="word">Split</span></div>
       <button class="iconbtn" data-a="settings" aria-label="${esc(L.settings)}">${ICON.gear}</button></div>
     <nav class="chips" aria-label="${esc(L.newList)}">${chips}</nav>
     <div class="titlebar"><div><h1><button data-a="rename">${esc(list.name)}</button></h1>

@@ -24,6 +24,7 @@ Rules version: 1.0
 - F-001 Swish payments in settle-up is done (2026-11-12). Needs a real-device check: scan a QR code and tap "Open Swish" on iPhone and Android.
 - B-002, B-003, B-004 (partial), B-006 and B-007 done 2026-11-12.
 - F-008 dates as YYYY-MM-DD done 2026-11-12.
+- F-009 logo wordmark nudge done 2026-11-12.
 - Next: nothing planned. B-005 is parked.
 
 ## Notes

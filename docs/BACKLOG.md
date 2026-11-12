@@ -16,6 +16,10 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ## Done
 
+### F-009 – Nudge the logo wordmark up slightly
+- Status: Done 2026-11-12. `.brand .word` moved up 2px so "Split" sits better against the round icon.
+- Priority: Low
+
 ### F-008 – Dates as YYYY-MM-DD in all languages
 - Priority: Medium
 - Status: Done 2026-11-12. Visible text field `#e-date` (typed dates validated by `parseISODate`, also accepts YYYYMMDD); an invisible native `#e-date-pick` over the chevron opens the device's picker. `dayLabel` returns ISO dates except Today/Yesterday.
