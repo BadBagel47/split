@@ -10,9 +10,18 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 - `<meta name="description">` is Swedish regardless of language (seen in link previews and search results).
 - Proposed fix: keep Swedish as the default for link previews (they are generated without running JS); no change unless wanted.
 
+### B-010 – Generic font flashes before the real fonts load
+- Priority: Medium
+- Status: Proposed, awaiting go-ahead.
+- Cause: Inter and Agbalumo are loaded from Google Fonts with `display=swap`, so text is first drawn in a fallback font and swapped when the fonts arrive. A hard reload (Shift+reload) bypasses the cache, which makes it very visible; first-time visitors see it too.
+- Proposed fix:
+  - Self-host the fonts (latin subset, woff2; both are SIL Open Font License) and `preload` them, so they load from the same server without the extra Google connections. Also removes the dependency on Google Fonts.
+  - Hide the app until the fonts are ready (`document.fonts.ready`), with a short time limit (about 1 s) so a slow connection never leaves the page blank.
+
 ## Proposed runs
 
-(none)
+- **A** – Sonnet, medium – Fonts without flashing
+  - B-010 – Self-host and preload fonts, show the app when the fonts are ready
 
 ## Done
 
