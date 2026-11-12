@@ -10,9 +10,20 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 - `<meta name="description">` is Swedish regardless of language (seen in link previews and search results).
 - Proposed fix: keep Swedish as the default for link previews (they are generated without running JS); no change unless wanted.
 
+### F-008 – Dates as YYYY-MM-DD in all languages
+- Priority: Medium
+- Status: Proposed, awaiting go-ahead and an answer on date headings.
+- Goal: show dates as YYYY-MM-DD regardless of app and device language.
+- Proposal:
+  - Date field on the expense screen: replace the visible native date input (whose format follows the device language and can't be forced) with a text field showing YYYY-MM-DD, plus the chevron/button that opens the native date picker. Typed dates are validated.
+  - Date headings in the expense list and "Already paid": use YYYY-MM-DD instead of "10 november".
+- Open question: keep "Today"/"Yesterday" for the two most recent days, or YYYY-MM-DD everywhere?
+- Supersedes the remaining part of B-004.
+
 ## Proposed runs
 
-(none)
+- **A** – Sonnet, medium – Dates as YYYY-MM-DD
+  - F-008 – YYYY-MM-DD in the date field and date headings
 
 ## Done
 
