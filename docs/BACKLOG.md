@@ -4,46 +4,47 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ## Open
 
+### B-005 – Page description always Swedish
+- Priority: Low
+- Status: Parked; no change proposed.
+- `<meta name="description">` is Swedish regardless of language (seen in link previews and search results).
+- Proposed fix: keep Swedish as the default for link previews (they are generated without running JS); no change unless wanted.
+
+## Proposed runs
+
+(none)
+
+## Done
+
 ### B-002 – Default list names keep their original language
+- Status: Done 2026-11-12. `renameDefaults` renames lists whose name is exactly the old language's default ("Våra utgifter"/"Our expenses", "Lista N"/"List N").
 - Priority: Medium
 - Lists created automatically get a name in the current language ("Våra utgifter", "Lista 2" / "Our expenses", "List 2"). After switching language the name stays in the old language, so the UI mixes Swedish and English.
 - Proposed fix: when the language changes, rename lists whose name is still exactly a default name in the old language.
 
 ### B-003 – English: amount field shows "kr" while amounts show "SEK"
+- Status: Done 2026-11-12. `curSym` now takes the currency label from `Intl` in the current language ("kr" in Swedish, "SEK" in English).
 - Priority: Low
 - In English, amounts are formatted as "SEK 1,000" but the suffix in the amount field on the expense screen says "kr".
 - Proposed fix: use the same currency label as the formatted amounts in the current language.
 
 ### B-004 – Date field follows the browser language, not the app language
+- Status: Done 2026-11-12 (partial). The date input gets `lang` set to the app locale. Chrome and Safari still use the device/browser language for the picker; a full fix would need a custom date picker.
 - Priority: Low
 - The native date picker on the expense screen uses the browser/phone language and format (e.g. mm/dd/yyyy on an English phone with the app in Swedish).
 - Proposed fix: set `lang` on the date input to the app language (respected by some browsers). A full fix would need a custom date picker; not proposed.
 
-### B-005 – Page description always Swedish
-- Priority: Low
-- `<meta name="description">` is Swedish regardless of language (seen in link previews and search results).
-- Proposed fix: keep Swedish as the default for link previews (they are generated without running JS); no change unless wanted.
-
 ### B-006 – English percent spacing
+- Status: Done 2026-11-12. English percent strings without space ("100% assigned").
 - Priority: Low
 - English shows "100 % assigned" / "10 % left to assign" with a space before %, which is Swedish style. English style is "100%".
 - Proposed fix: use language-specific percent formatting.
 
 ### B-007 – Date field has a native arrow/icon that doesn't match the category field
+- Status: Done 2026-11-12. Date input uses the same chevron as the select; the native picker indicator is invisible and stretched over the field so tapping anywhere opens the picker; value left-aligned on iOS.
 - Priority: Medium
 - The category select uses a custom chevron (`appearance: none` + SVG), but the date input keeps the browser's own picker indicator (a calendar icon on desktop Chrome, a native arrow on mobile browsers), so the two fields directly above each other look different.
 - Proposed fix: hide the native indicator, give the date field the same custom icon as the select (stretching the invisible native indicator over the field so tapping anywhere still opens the picker), and left-align the value on iOS.
-
-## Proposed runs
-
-- **A** – Sonnet, medium – Language consistency
-  - B-002 – Rename default list names when switching language
-  - B-003 – Same currency label in the amount field as in amounts
-  - B-004 – Date field follows the app language where the browser allows
-  - B-007 – Date field arrow styled like the category field
-  - B-006 – English percent without space
-
-## Done
 
 ### F-001 – Swish payments when settling up
 - Priority: Medium

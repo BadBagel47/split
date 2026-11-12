@@ -22,7 +22,8 @@ Rules version: 1.0
 ## Current state
 - v2 design is live.
 - F-001 Swish payments in settle-up is done (2026-11-12). Needs a real-device check: scan a QR code and tap "Open Swish" on iPhone and Android.
-- Next: language consistency bugs B-002–B-007 (see BACKLOG.md), awaiting go-ahead.
+- B-002, B-003, B-004 (partial), B-006 and B-007 done 2026-11-12.
+- Next: nothing planned. B-005 is parked.
 
 ## Notes
 - Personal data: any per-person data added to a list (e.g. phone numbers for Swish) ends up in share links and backups. Keep that in mind when adding fields. The user approved including Swish numbers in share links and backups (2026-11-12).

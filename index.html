@@ -120,7 +120,10 @@ h2 { margin: 0; font-size: 20px; font-weight: 800; }
 .field > label, .field > .lbl { font-size: 15px; font-weight: 700; }
 .field .hintline { font-size: 13px; color: var(--muted); font-weight: 500; }
 .input { min-height: 52px; border: 1px solid var(--input-line); border-radius: 16px; background: var(--card); padding: 0 16px; font-size: 17px; width: 100%; }
-select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%238f8a7b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 20px; padding-right: 44px; }
+select.input, input[type=date].input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%238f8a7b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 20px; padding-right: 44px; }
+input[type=date].input { position: relative; display: flex; align-items: center; text-align: left; cursor: pointer; }
+input[type=date].input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: auto; height: auto; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
+input[type=date].input::-webkit-date-and-time-value { text-align: left; margin: 0; }
 .wrap { display: flex; gap: 8px; flex-wrap: wrap; }
 .seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: var(--seg); padding: 4px; border-radius: 18px; }
 .seg.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -290,7 +293,7 @@ const T = {
     cats: { food: 'Food and drink', home: 'Housing', travel: 'Travel', fun: 'Fun', shop: 'Shopping', other: 'Other' },
     create: 'Add expense', save: 'Save',
     eqOk: (n, each) => `Split equally between ${n} · ${each} each`, eqNone: 'Pick at least one person',
-    pctOk: '100 % assigned', pctLeft: r => `${r} % left to assign`, pctOver: r => `${r} % too much`,
+    pctOk: '100% assigned', pctLeft: r => `${r}% left to assign`, pctOver: r => `${r}% too much`,
     shOk: n => `${n} shares in total`, shNone: 'Give at least one person a share',
     exOk: 'The whole amount is assigned', exLeft: r => `${r} left to assign`, exOver: r => `${r} too much`,
     needAmount: 'Enter an amount.', needDesc: 'Say what the expense was for.', badNumber: 'Use numbers only, zero or more.',
@@ -358,6 +361,15 @@ function normalize(l) {
   return l;
 }
 S.lists = (S.lists || []).map(normalize).filter(Boolean);
+// Lists still carrying an automatic name follow the language when it changes.
+function renameDefaults(from, to) {
+  if (from === to) return;
+  S.lists.forEach(l => {
+    if (l.name === from.defaultList) { l.name = to.defaultList; return; }
+    const m = l.name.match(/(\d+)$/);
+    if (m && l.name === from.newListName(Number(m[1]))) l.name = to.newListName(Number(m[1]));
+  });
+}
 function ensure() {
   if (!S.lists.length) S.lists.push(blankList(t().defaultList));
   if (!S.lists.find(l => l.id === S.current)) S.current = S.lists[0].id;
@@ -375,7 +387,8 @@ function money(v, list) {
   try { return new Intl.NumberFormat(t().loc, { style: 'currency', currency: list.currency, minimumFractionDigits: d, maximumFractionDigits: d }).format(v); }
   catch (e) { return `${v.toFixed(d)} ${list.currency}`; }
 }
-const curSym = c => ({ SEK: 'kr', NOK: 'kr', DKK: 'kr', EUR: '€', USD: '$' }[c] || c);
+// Currency label as the current language formats it (e.g. "kr" in Swedish, "SEK" in English), matching money().
+const curSym = c => { try { return new Intl.NumberFormat(t().loc, { style: 'currency', currency: c }).formatToParts(0).find(x => x.type === 'currency').value; } catch (e) { return c; } };
 const person = (list, id) => list.people.find(p => p.id === id) || { name: '?', color: '#cccccc' };
 const initial = n => (n.trim()[0] || '?').toUpperCase();
 const av = (p, sm) => `<span class="av${sm ? ' sm' : ''}" style="background:${esc(p.color)}" aria-hidden="true">${esc(initial(p.name))}</span>`;
@@ -661,7 +674,7 @@ function renderExpense() {
     <div class="field"><span class="lbl" id="l-payer">${esc(L.whoPaid)}</span><div class="wrap" role="radiogroup" aria-labelledby="l-payer" id="e-payer">${payerChips()}</div></div>
     <div class="field"><span class="lbl" id="l-mode">${esc(L.howSplit)}</span><div id="e-split">${splitBlock()}</div></div>
     <details class="more"${D.category || D.date !== todayISO() ? ' open' : ''}><summary>${esc(L.dateCat)}${ICON.chev}</summary><div class="inner">
-      <div class="field"><label for="e-date">${esc(L.date)}</label><input id="e-date" type="date" class="input" value="${esc(D.date)}"></div>
+      <div class="field"><label for="e-date">${esc(L.date)}</label><input id="e-date" type="date" class="input" lang="${esc(L.loc)}" value="${esc(D.date)}"></div>
       <div class="field"><label for="e-cat">${esc(L.category)}</label><select id="e-cat" class="input"><option value="">${esc(L.none)}</option>${CATS.map(k => `<option value="${k}"${k === D.category ? ' selected' : ''}>${esc(L.cats[k])}</option>`).join('')}</select></div>
     </div></details>
     <p class="err" id="e-err" role="alert">${esc(D.err || '')}</p>`;
@@ -874,7 +887,7 @@ function settingsSheet() {
         const k = b.dataset.seg, v = b.dataset.v;
         form.querySelectorAll(`[data-seg="${k}"]`).forEach(x => x.setAttribute('aria-checked', x === b));
         if (k === 'appearance') { S.appearance = v; applyMode(); }
-        if (k === 'lang') { S.lang = v; applyMode(); persist(); render(); settingsSheet(); return; }
+        if (k === 'lang') { renameDefaults(T[S.lang], T[v]); S.lang = v; applyMode(); persist(); render(); settingsSheet(); return; }
         if (k === 'tipmode') tp.mode = v;
         persist(); render();
       });
