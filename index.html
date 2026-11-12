@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Dela upp utgifter, räkna ut dricks och gör upp. Allt sparas lokalt i din webbläsare.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Split">
+<meta property="og:title" content="Split">
+<meta property="og:description" content="Dela upp utgifter, räkna ut dricks och gör upp. Allt sparas lokalt i din webbläsare.">
+<meta property="og:locale" content="sv_SE">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#e8e2d2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1c1b" media="(prefers-color-scheme: dark)">
@@ -290,6 +295,8 @@ const T = {
     backupIntro: 'Här är alla dina listor som text. Kopiera och spara den någonstans. För att återställa: klistra in en tidigare kopia och tryck på Återställ.',
     copy: 'Kopiera', restore: 'Återställ', download: 'Ladda ner', close: 'Stäng', restoreBad: 'Texten är inte en giltig säkerhetskopia.',
     restored: n => `${n} ${n === 1 ? 'lista' : 'listor'} återställda`,
+    shareWarnTitle: 'Listan innehåller Swish-nummer', shareWarn: n => `Länken innehåller Swish-numren för ${n}. Alla som får länken kan se dem.`,
+    shareNoNums: 'Dela utan nummer', shareAnyway: 'Dela ändå',
     shareIntro: 'Skicka länken. Mottagaren får en egen kopia av listan i sin webbläsare.', linkCopied: 'Länken är kopierad',
     importTitle: 'Lägg till delad lista', importQ: n => `Vill du lägga till listan "${n}" här?`, importBtn: 'Lägg till',
     imported: 'Listan har lagts till', importBad: 'Länken kunde inte läsas.',
@@ -343,6 +350,8 @@ const T = {
     backupIntro: 'All your lists as text. Copy it and keep it somewhere. To restore: paste an earlier copy and tap Restore.',
     copy: 'Copy', restore: 'Restore', download: 'Download', close: 'Close', restoreBad: "That text isn't a valid backup.",
     restored: n => `${n} list${n === 1 ? '' : 's'} restored`,
+    shareWarnTitle: 'This list contains Swish numbers', shareWarn: n => `The link includes the Swish numbers of ${n}. Anyone who gets the link can see them.`,
+    shareNoNums: 'Share without numbers', shareAnyway: 'Share anyway',
     shareIntro: 'Send the link. The recipient gets their own copy of the list in their browser.', linkCopied: 'Link copied',
     importTitle: 'Add shared list', importQ: n => `Add the list "${n}" here?`, importBtn: 'Add',
     imported: 'The list was added', importBad: "The link couldn't be read.",
@@ -970,9 +979,26 @@ function backupSheet() {
 
 const enc = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
-async function share() {
+// Share links contain the whole list. Warn first if it includes Swish numbers.
+function share() {
+  const L = t(), list = cur(), withNums = list.people.filter(p => p.swish);
+  if (!withNums.length) return shareLink(false);
+  const names = withNums.map(p => p.name);
+  let who; try { who = new Intl.ListFormat(L.loc, { type: 'conjunction' }).format(names); } catch (e) { who = names.join(', '); }
+  sheet(`<h3>${esc(L.shareWarnTitle)}</h3><p>${esc(L.shareWarn(who))}</p>
+    <div class="foot"><button type="button" class="pill grow" data-x="close">${esc(L.cancel)}</button><button type="button" class="pill" data-x="strip">${esc(L.shareNoNums)}</button><button type="submit" class="pill solid">${esc(L.shareAnyway)}</button></div>`,
+    form => {
+      form.querySelector('[data-x=close]').onclick = closeSheet;
+      form.querySelector('[data-x=strip]').onclick = () => { closeSheet(); shareLink(true); };
+      form.addEventListener('submit', () => { closeSheet(); shareLink(false); });
+    });
+}
+async function shareLink(stripNumbers) {
   const L = t(), list = cur();
-  const url = `${location.origin}${location.pathname}#import=${enc(JSON.stringify(list))}`;
+  const data = stripNumbers ? Object.assign({}, list, { people: list.people.map(p => { const q = Object.assign({}, p); delete q.swish; return q; }) }) : list;
+  // English links go via en/, a static page with English link-preview text that forwards to the app.
+  const base = location.pathname.replace(/[^/]*$/, '') + (S.lang === 'en' ? 'en/' : '');
+  const url = `${location.origin}${base}#import=${enc(JSON.stringify(data))}`;
   if (navigator.share) { try { await navigator.share({ title: list.name, url }); return; } catch (e) { if (e.name === 'AbortError') return; } }
   sheet(`<h3>${esc(L.share)}</h3><p>${esc(L.shareIntro)}</p><textarea readonly spellcheck="false" style="min-height:90px">${esc(url)}</textarea>
     <div class="foot"><button type="button" class="pill" data-x="close">${esc(L.close)}</button><button type="submit" class="pill solid">${esc(L.copy)}</button></div>`,

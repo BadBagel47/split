@@ -4,26 +4,26 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ## Open
 
+(none)
+
+## Proposed runs
+
+(none)
+
+## Done
+
 ### B-005 – Page description always Swedish
 - Priority: Low
-- Status: Proposed, awaiting go-ahead.
+- Status: Done 2026-11-12. `en/index.html` holds English description/Open Graph tags and forwards to the app (keeping `#import=`); share links use `en/` when Split is set to English. Root page got Swedish Open Graph tags.
 - `<meta name="description">` is Swedish regardless of language (seen in link previews and search results).
 - Decision (2026-11-12): shared links should preview in the language Split is set to.
 - Proposed fix: link previews are made by services that read the page without running JS, so the language has to be in the URL. Add a small English entry page `en/index.html` with English title/description (plus Open Graph tags) that immediately forwards to the app, keeping the `#import=` data. When Split is set to English, share links point to `/en/`; in Swedish they point to the root as today. Add Open Graph tags to the root page too.
 
 ### F-011 – Warn before sharing a list that contains Swish numbers
 - Priority: Medium
-- Status: Proposed, awaiting go-ahead.
+- Status: Done 2026-11-12. `share()` shows a warning sheet when the list has Swish numbers (Cancel / Share without numbers / Share anyway); `shareLink(strip)` builds the link.
 - Share links contain the whole list, including Swish numbers, in the URL. Anyone who gets the link can see the numbers.
 - Proposed fix: when the list has Swish numbers, show a sheet before sharing that names whose numbers are included and explains that everyone who gets the link can see them. Buttons: Cancel, Share without numbers, Share anyway. Lists without numbers share directly as today.
-
-## Proposed runs
-
-- **A** – Sonnet, medium – Sharing
-  - B-005 – Link preview in the language Split is set to
-  - F-011 – Warning before sharing Swish numbers
-
-## Done
 
 ### B-010 – Generic font flashes before the real fonts load
 - Priority: Medium

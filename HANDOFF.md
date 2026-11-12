@@ -15,7 +15,7 @@ Rules version: 1.0
 - The whole app is a single file: `index.html` (HTML, CSS and JS). No build step, no dependencies. Fonts are self-hosted in `fonts/` (no external requests).
 - All data is stored locally in the browser (`localStorage`). No accounts, no backend.
 - UI languages: Swedish and English (string tables near the top of the script).
-- Lists can be shared via a link (`#import=` + base64url-encoded list JSON) and backed up as JSON.
+- Lists can be shared via a link (`#import=` + base64url-encoded list JSON) and backed up as JSON. English share links go via `en/index.html` (English link preview, forwards to the app). Sharing a list with Swish numbers shows a warning first.
 - `shots/` holds design screenshots of v2.
 - Swish (F-001): optional Swish number per person; settle-up cards in SEK get a "Swish" button that opens a sheet with a QR code (and a deep link on touch devices). Swish has no callback, so payments are still confirmed with "Paid".
 
@@ -26,7 +26,8 @@ Rules version: 1.0
 - F-008 dates as YYYY-MM-DD done 2026-11-12.
 - F-009 logo wordmark nudge done 2026-11-12.
 - B-010 font flash fixed 2026-11-12 (self-hosted fonts).
-- Next: B-005 (link preview language) and F-011 (warning before sharing Swish numbers), awaiting go-ahead.
+- B-005 (link preview language) and F-011 (warning before sharing Swish numbers) done 2026-11-12.
+- Next: nothing planned.
 
 ## Notes
 - Personal data: any per-person data added to a list (e.g. phone numbers for Swish) ends up in share links and backups. Keep that in mind when adding fields. The user approved including Swish numbers in share links and backups (2026-11-12).
