@@ -12,12 +12,12 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ### F-008 – Dates as YYYY-MM-DD in all languages
 - Priority: Medium
-- Status: Proposed, awaiting go-ahead and an answer on date headings.
+- Status: Ready, awaiting go-ahead.
 - Goal: show dates as YYYY-MM-DD regardless of app and device language.
 - Proposal:
   - Date field on the expense screen: replace the visible native date input (whose format follows the device language and can't be forced) with a text field showing YYYY-MM-DD, plus the chevron/button that opens the native date picker. Typed dates are validated.
   - Date headings in the expense list and "Already paid": use YYYY-MM-DD instead of "10 november".
-- Open question: keep "Today"/"Yesterday" for the two most recent days, or YYYY-MM-DD everywhere?
+- Decision (2026-11-12): keep "Today"/"Yesterday" for the two most recent days; YYYY-MM-DD for all other dates.
 - Supersedes the remaining part of B-004.
 
 ## Proposed runs
