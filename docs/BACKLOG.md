@@ -29,12 +29,18 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 - English shows "100 % assigned" / "10 % left to assign" with a space before %, which is Swedish style. English style is "100%".
 - Proposed fix: use language-specific percent formatting.
 
+### B-007 – Date field has a native arrow/icon that doesn't match the category field
+- Priority: Medium
+- The category select uses a custom chevron (`appearance: none` + SVG), but the date input keeps the browser's own picker indicator (a calendar icon on desktop Chrome, a native arrow on mobile browsers), so the two fields directly above each other look different.
+- Proposed fix: hide the native indicator, give the date field the same custom icon as the select (stretching the invisible native indicator over the field so tapping anywhere still opens the picker), and left-align the value on iOS.
+
 ## Proposed runs
 
 - **A** – Sonnet, medium – Language consistency
   - B-002 – Rename default list names when switching language
   - B-003 – Same currency label in the amount field as in amounts
   - B-004 – Date field follows the app language where the browser allows
+  - B-007 – Date field arrow styled like the category field
   - B-006 – English percent without space
 
 ## Done
