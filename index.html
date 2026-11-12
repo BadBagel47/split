@@ -850,18 +850,24 @@ function sheet(html, onReady) {
 function closeSheet() { if (!sheetEl.innerHTML) return; sheetEl.innerHTML = ''; if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (sheetEl.innerHTML) closeSheet(); else if (view !== 'list') goBack(); } });
 
-function personSheet(p) {
+// more = the sheet reopened after adding someone; then the close button reads Done and saves a typed name first.
+function personSheet(p, more) {
   const L = t(), list = cur(), c = calc(list);
   sheet(`<h3>${esc(p ? L.person : L.addPerson)}</h3>
     ${p ? `<p>${esc(L.personPaid(money(c.paid[p.id], list), money(c.owed[p.id], list)))}</p>` : ''}
     <div class="field"><label for="s-name">${esc(L.name)}</label><input id="s-name" class="input" maxlength="40" autocomplete="off" value="${p ? esc(p.name) : ''}"></div>
     <div class="field"><label for="s-swish">${esc(L.swishNum)}</label><input id="s-swish" class="input" type="tel" inputmode="tel" maxlength="20" autocomplete="off" placeholder="070-123 45 67" aria-describedby="s-swish-hint" value="${p && p.swish ? esc(swishShow(p.swish)) : ''}"><small id="s-swish-hint" class="hintline">${esc(L.swishHint)}</small></div>
     <p class="err" data-err role="alert"></p>
-    <div class="foot">${p ? `<button type="button" class="pill danger grow" data-x="remove">${esc(L.remove)}</button>` : ''}<button type="button" class="pill" data-x="close">${esc(L.cancel)}</button><button type="submit" class="pill solid">${esc(p ? L.save : L.add.replace('+ ', ''))}</button></div>`,
+    <div class="foot">${p ? `<button type="button" class="pill danger grow" data-x="remove">${esc(L.remove)}</button>` : ''}<button type="button" class="pill" data-x="close">${esc(more ? L.done : L.cancel)}</button><button type="submit" class="pill solid">${esc(p ? L.save : L.add.replace('+ ', ''))}</button></div>`,
     form => {
       const err = m => { form.querySelector('[data-err]').textContent = m; };
-      form.querySelector('[data-x=close]').onclick = closeSheet;
+      let reopen = !p;
+      form.querySelector('[data-x=close]').onclick = () => {
+        if (more && form.querySelector('#s-name').value.trim()) { reopen = false; form.dispatchEvent(new Event('submit', { cancelable: true })); }
+        else closeSheet();
+      };
       form.addEventListener('submit', () => {
+        const again = reopen; reopen = !p;
         const name = form.querySelector('#s-name').value.trim();
         if (!name) return err(L.needName);
         if (list.people.some(q => q !== p && q.name.toLowerCase() === name.toLowerCase())) return err(L.duplicate(name));
@@ -877,7 +883,7 @@ function personSheet(p) {
           if (!list.tip.payer) list.tip.payer = np.id;
         }
         persist(); closeSheet(); render();
-        if (!p) setTimeout(() => personSheet(), 30);
+        if (again) setTimeout(() => personSheet(null, true), 30);
       });
       const rm = form.querySelector('[data-x=remove]');
       if (rm) rm.onclick = () => {

@@ -27,7 +27,8 @@ Rules version: 1.0
 - F-009 logo wordmark nudge done 2026-11-12.
 - B-010 font flash fixed 2026-11-12 (self-hosted fonts).
 - B-005 (link preview language) and F-011 (warning before sharing Swish numbers) done 2026-11-12.
-- Next: B-012 add-participant button label, awaiting go-ahead.
+- B-012 add-participant Done button done 2026-11-12.
+- Next: nothing planned.
 
 ## Notes
 - Personal data: any per-person data added to a list (e.g. phone numbers for Swish) ends up in share links and backups. Keep that in mind when adding fields. The user approved including Swish numbers in share links and backups (2026-11-12).
