@@ -1,6 +1,6 @@
 # Split
 
-Dela upp utgifter, räkna ut dricks och gör upp. Allt sparas lokalt i webbläsaren – inget konto eller databas.
+Dela upp utgifter, räkna ut dricks och gör upp – med Swish om du vill. Allt sparas lokalt i webbläsaren – inget konto eller databas.
 
 Den första versionen finns kvar på grenen `v1-gammal`.
 

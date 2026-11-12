@@ -17,10 +17,12 @@ Rules version: 1.0
 - UI languages: Swedish and English (string tables near the top of the script).
 - Lists can be shared via a link (`#import=` + base64url-encoded list JSON) and backed up as JSON.
 - `shots/` holds design screenshots of v2.
+- Swish (F-001): optional Swish number per person; settle-up cards in SEK get a "Swish" button that opens a sheet with a QR code (and a deep link on touch devices). Swish has no callback, so payments are still confirmed with "Paid".
 
 ## Current state
 - v2 design is live.
-- Next: F-001 Swish payments in the settle-up view (see BACKLOG.md), awaiting go-ahead.
+- F-001 Swish payments in settle-up is done (2026-11-12). Needs a real-device check: scan a QR code and tap "Open Swish" on iPhone and Android.
+- Next: nothing planned.
 
 ## Notes
 - Personal data: any per-person data added to a list (e.g. phone numbers for Swish) ends up in share links and backups. Keep that in mind when adding fields. The user approved including Swish numbers in share links and backups (2026-11-12).

@@ -118,6 +118,7 @@ h2 { margin: 0; font-size: 20px; font-weight: 800; }
 .amountbox:focus-within .amountline { border-bottom-color: var(--ink); }
 .field { display: flex; flex-direction: column; gap: 8px; }
 .field > label, .field > .lbl { font-size: 15px; font-weight: 700; }
+.field .hintline { font-size: 13px; color: var(--muted); font-weight: 500; }
 .input { min-height: 52px; border: 1px solid var(--input-line); border-radius: 16px; background: var(--card); padding: 0 16px; font-size: 17px; width: 100%; }
 select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%238f8a7b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 20px; padding-right: 44px; }
 .wrap { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -160,6 +161,14 @@ details.more .inner { display: flex; flex-direction: column; gap: 14px; padding:
 .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .pair button { min-height: 48px; border-radius: 24px; font-weight: 700; font-size: 15px; border: 1px solid var(--btn-line); background: var(--card); }
 .pair button.go { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.pair button.swish { grid-column: 1 / -1; background: var(--yellow); color: #222322; border-color: var(--yellow); }
+.txcard .addswish { all: unset; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--muted); text-decoration: underline; padding: 6px 0; align-self: flex-start; }
+.qrbox { background: #ffffff; border-radius: 20px; padding: 12px; align-self: center; width: min(100%, 280px); line-height: 0; }
+.qrbox svg { width: 100%; height: auto; display: block; }
+.swishsum { text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.swishsum strong { font-size: 32px; font-weight: 800; letter-spacing: -.8px; font-variant-numeric: tabular-nums; }
+.swishsum span { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+a.pill { color: var(--ink); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .paid { width: 36px; height: 36px; border-radius: 50%; background: var(--ok); color: #ffffff; display: grid; place-items: center; flex-shrink: 0; }
 
 /* sheets */
@@ -236,6 +245,12 @@ const T = {
     shares: 'andelar',
     settleLead: n => n === 1 ? 'En betalning till så är alla kvitt. Tryck på Betald när pengarna har kommit fram.' : `${n} betalningar så är alla kvitt. Tryck på Betald när pengarna har kommit fram.`,
     pays: (a, b) => `${a} betalar ${b}`, copyAmount: 'Kopiera belopp', copied: 'Beloppet är kopierat',
+    swish: 'Swisha', swishNum: 'Swish-nummer (valfritt)', swishHint: 'Mobilnummer eller Swish-nummer. Används när andra ska swisha hit.',
+    badSwish: 'Det ser inte ut som ett Swish-nummer. Skriv ett mobilnummer (07…) eller ett nummer som börjar på 123.',
+    addSwish: n => `Lägg till Swish-nummer för ${n}`, swishTo: n => `Swisha ${n}`,
+    swishScan: 'Skanna QR-koden med Swish-appen, eller öppna appen direkt på den här telefonen. Tryck på Betald när pengarna har kommit fram.',
+    swishScanDesk: 'Skanna QR-koden med Swish-appen i mobilen. Tryck på Betald när pengarna har kommit fram.',
+    openSwish: 'Öppna Swish',
     alreadyPaid: 'Redan betalt', paidTo: (a, b) => `${a} betalade ${b}`, undo: 'Ångra', back: 'Tillbaka',
     markedPaid: 'Markerad som betald', expDeleted: 'Utgiften är raderad', payUndone: 'Betalningen är borttagen',
     addPerson: 'Lägg till deltagare', name: 'Namn', person: 'Deltagare', remove: 'Ta bort',
@@ -282,6 +297,12 @@ const T = {
     shares: 'shares',
     settleLead: n => n === 1 ? 'One more payment and everyone is settled. Tap Paid when the money has arrived.' : `${n} payments and everyone is settled. Tap Paid when the money has arrived.`,
     pays: (a, b) => `${a} pays ${b}`, copyAmount: 'Copy amount', copied: 'Amount copied',
+    swish: 'Swish', swishNum: 'Swish number (optional)', swishHint: 'Mobile number or Swish number. Used when others pay this person with Swish.',
+    badSwish: "That doesn't look like a Swish number. Enter a Swedish mobile number (07…) or a number starting with 123.",
+    addSwish: n => `Add a Swish number for ${n}`, swishTo: n => `Swish ${n}`,
+    swishScan: 'Scan the QR code with the Swish app, or open the app directly on this phone. Tap Paid when the money has arrived.',
+    swishScanDesk: 'Scan the QR code with the Swish app on your phone. Tap Paid when the money has arrived.',
+    openSwish: 'Open Swish',
     alreadyPaid: 'Already paid', paidTo: (a, b) => `${a} paid ${b}`, undo: 'Undo', back: 'Back',
     markedPaid: 'Marked as paid', expDeleted: 'Expense deleted', payUndone: 'Payment removed',
     addPerson: 'Add participant', name: 'Name', person: 'Participant', remove: 'Remove',
@@ -326,7 +347,7 @@ function normalize(l) {
   l.payments = Array.isArray(l.payments) ? l.payments.filter(p => p && typeof p.amount === 'number') : [];
   l.tip = l.tip || { enabled: false, mode: 'percent', value: 10, payer: null };
   l.people = l.people.filter(p => p && typeof p.id === 'string' && typeof p.name === 'string');
-  l.people.forEach((p, i) => { if (!p.color) p.color = AV[i % AV.length]; });
+  l.people.forEach((p, i) => { if (!p.color) p.color = AV[i % AV.length]; const sw = p.swish ? swishNorm(String(p.swish)) : null; if (sw) p.swish = sw; else delete p.swish; });
   l.expenses = l.expenses.filter(e => e && typeof e.amount === 'number' && Array.isArray(e.among));
   l.expenses.forEach(e => {
     if (typeof e.date === 'number') { const d = new Date(e.date); e.date = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
@@ -370,6 +391,112 @@ const ICON = {
   warn: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>',
   chev: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
 };
+
+/* ---------- swish ---------- */
+// Stored form: Swedish mobile as 46XXXXXXXXX, Swish business/organisation number as 123XXXXXXX.
+function swishNorm(v) {
+  let d = String(v).replace(/[\s\-().]/g, '');
+  if (d.startsWith('+46')) d = '0' + d.slice(3);
+  else if (d.startsWith('0046')) d = '0' + d.slice(4);
+  else if (/^46\d{9}$/.test(d)) d = '0' + d.slice(2);
+  if (/^07\d{8}$/.test(d)) return '46' + d.slice(1);
+  if (/^123\d{7}$/.test(d)) return d;
+  return null;
+}
+const swishShow = n => n.startsWith('46') ? `0${n.slice(2, 4)}-${n.slice(4, 7)} ${n.slice(7, 9)} ${n.slice(9)}` : `${n.slice(0, 3)} ${n.slice(3, 6)} ${n.slice(6, 8)} ${n.slice(8)}`;
+// Swish allows a limited character set in messages (max 50); ';' is the QR field separator.
+const swishMsg = s => s.replace(/[^0-9a-zA-ZåäöÅÄÖéÉüÜ :.,?!()"\-+%*\/&'=]/g, '').replace(/\s+/g, ' ').trim().slice(0, 50);
+const swishAmt = v => { const x = r2(v); return Number.isInteger(x) ? String(x) : x.toFixed(2); };
+// Deep link that opens the Swish app with payee, amount and message prefilled (message editable).
+const swishLink = (payee, v, msg) => 'swish://payment?data=' + encodeURIComponent(JSON.stringify({ version: 1, payee: { value: payee, editable: false }, amount: { value: r2(v), editable: false }, message: { value: msg, editable: true } }));
+// Prefilled Swish QR payload: C<payee>;<amount>;<message>;<editable mask: 1 payee, 2 amount, 4 message>
+const swishQR = (payee, v, msg) => `C${payee};${swishAmt(v)};${msg};4`;
+const isTouch = () => matchMedia('(pointer: coarse)').matches;
+
+/* ---------- QR code (byte mode, error correction M, versions 1-10) ---------- */
+function qrSvg(text) {
+  const data = [...new TextEncoder().encode(text)];
+  const TOT = [0, 26, 44, 70, 100, 134, 172, 196, 242, 292, 346];
+  const ECC = [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26];
+  const BLK = [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5];
+  const ALN = [[], [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50]];
+  let v = 1;
+  while (v <= 10 && 4 + (v < 10 ? 8 : 16) + data.length * 8 > (TOT[v] - ECC[v] * BLK[v]) * 8) v++;
+  if (v > 10) return '';
+  const cap = TOT[v] - ECC[v] * BLK[v];
+  const bits = [];
+  const put = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
+  put(4, 4); put(data.length, v < 10 ? 8 : 16); data.forEach(b => put(b, 8));
+  put(0, Math.min(4, cap * 8 - bits.length)); while (bits.length % 8) bits.push(0);
+  const cw = []; for (let i = 0; i < bits.length; i += 8) cw.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+  for (let pad = 0xEC; cw.length < cap; pad ^= 0xEC ^ 0x11) cw.push(pad);
+  // Reed-Solomon over GF(256), polynomial 0x11D
+  const EXP = [], LOG = []; for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11D; }
+  const mul = (a, b) => a && b ? EXP[(LOG[a] + LOG[b]) % 255] : 0;
+  const deg = ECC[v]; let gen = [1];
+  for (let i = 0; i < deg; i++) { const g = new Array(gen.length + 1).fill(0); gen.forEach((c, j) => { g[j] ^= c; g[j + 1] ^= mul(c, EXP[i]); }); gen = g; }
+  const rs = msg => { const r = new Array(deg).fill(0); msg.forEach(b => { const f = b ^ r.shift(); r.push(0); for (let j = 0; j < deg; j++) r[j] ^= mul(gen[j + 1], f); }); return r; };
+  const nb = BLK[v], shortLen = Math.floor(TOT[v] / nb), nShort = nb - TOT[v] % nb;
+  const blocks = []; let k = 0;
+  for (let i = 0; i < nb; i++) { const len = shortLen - deg + (i < nShort ? 0 : 1); const d = cw.slice(k, k + len); k += len; blocks.push([d, rs(d)]); }
+  const out = [];
+  for (let i = 0; i <= shortLen - deg; i++) blocks.forEach(b => { if (i < b[0].length) out.push(b[0][i]); });
+  for (let i = 0; i < deg; i++) blocks.forEach(b => out.push(b[1][i]));
+  // matrix
+  const N = 17 + 4 * v, M = [], F = [];
+  for (let y = 0; y < N; y++) { M.push(new Array(N).fill(0)); F.push(new Array(N).fill(false)); }
+  const set = (x, y, d) => { M[y][x] = d ? 1 : 0; F[y][x] = true; };
+  for (let i = 0; i < N; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+  const finder = (cx, cy) => { for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) { const x = cx + dx, y = cy + dy, d = Math.max(Math.abs(dx), Math.abs(dy)); if (x >= 0 && x < N && y >= 0 && y < N) set(x, y, d !== 2 && d !== 4); } };
+  finder(3, 3); finder(N - 4, 3); finder(3, N - 4);
+  const al = ALN[v];
+  al.forEach((ax, i) => al.forEach((ay, j) => {
+    if ((i === 0 && j === 0) || (i === 0 && j === al.length - 1) || (i === al.length - 1 && j === 0)) return;
+    for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) set(ax + dx, ay + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+  }));
+  const drawFormat = mask => {
+    const d = mask; let r = d; for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+    const b = ((d << 10) | r) ^ 0x5412, bit = i => ((b >>> i) & 1) === 1;
+    for (let i = 0; i <= 5; i++) set(8, i, bit(i));
+    set(8, 7, bit(6)); set(8, 8, bit(7)); set(7, 8, bit(8));
+    for (let i = 9; i < 15; i++) set(14 - i, 8, bit(i));
+    for (let i = 0; i < 8; i++) set(N - 1 - i, 8, bit(i));
+    for (let i = 8; i < 15; i++) set(8, N - 15 + i, bit(i));
+    set(8, N - 8, true);
+  };
+  drawFormat(0);
+  if (v >= 7) {
+    let r = v; for (let i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25);
+    const b = (v << 12) | r;
+    for (let i = 0; i < 18; i++) { const d = ((b >>> i) & 1) === 1, a = N - 11 + i % 3, c = Math.floor(i / 3); set(a, c, d); set(c, a, d); }
+  }
+  let i = 0;
+  for (let right = N - 1; right >= 1; right -= 2) {
+    if (right === 6) right = 5;
+    for (let vert = 0; vert < N; vert++) for (let j = 0; j < 2; j++) {
+      const x = right - j, up = ((right + 1) & 2) === 0, y = up ? N - 1 - vert : vert;
+      if (!F[y][x] && i < out.length * 8) { M[y][x] = (out[i >>> 3] >>> (7 - (i & 7))) & 1; i++; }
+    }
+  }
+  const MASKS = [(x, y) => (x + y) % 2, (x, y) => y % 2, (x, y) => x % 3, (x, y) => (x + y) % 3, (x, y) => (Math.floor(y / 2) + Math.floor(x / 3)) % 2,
+    (x, y) => x * y % 2 + x * y % 3, (x, y) => (x * y % 2 + x * y % 3) % 2, (x, y) => ((x + y) % 2 + x * y % 3) % 2];
+  const applyMask = m => { for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!F[y][x] && MASKS[m](x, y) === 0) M[y][x] ^= 1; };
+  const penalty = () => {
+    let p = 0, dark = 0;
+    const line = get => { let run = 1, s = ''; for (let a = 0; a < N; a++) { s += get(a); if (a && get(a) === get(a - 1)) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1; } p += 40 * ((s.match(/(?=10111010000|00001011101)/g) || []).length); };
+    for (let y = 0; y < N; y++) line(a => M[y][a]);
+    for (let x = 0; x < N; x++) line(a => M[a][x]);
+    for (let y = 0; y < N - 1; y++) for (let x = 0; x < N - 1; x++) { const c = M[y][x]; if (c === M[y][x + 1] && c === M[y + 1][x] && c === M[y + 1][x + 1]) p += 3; }
+    M.forEach(r => r.forEach(c => { dark += c; }));
+    return p + 10 * Math.floor(Math.abs(dark * 20 - N * N * 10) / (N * N));
+  };
+  let best = 0, bestP = Infinity;
+  for (let m = 0; m < 8; m++) { applyMask(m); drawFormat(m); const pp = penalty(); if (pp < bestP) { bestP = pp; best = m; } applyMask(m); }
+  applyMask(best); drawFormat(best);
+  let path = '';
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (M[y][x]) path += `M${x + 4} ${y + 4}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${N + 8} ${N + 8}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img"><rect width="100%" height="100%" fill="#ffffff"/><path d="${path}" fill="#000000"/></svg>`;
+}
 
 /* ---------- maths ---------- */
 function expenseParts(e, known) {
@@ -615,9 +742,11 @@ function saveExpense() {
 function renderSettle() {
   const L = t(), list = cur(), c = calc(list);
   const txs = c.tx.map((x, i) => {
-    const a = person(list, x.from), b = person(list, x.to);
+    const a = person(list, x.from), b = person(list, x.to), sek = list.currency === 'SEK';
+    const sw = sek && b.swish ? `<button class="swish" data-a="swish" data-i="${i}">${esc(L.swishTo(b.name))}</button>` : '';
+    const addSw = sek && !b.swish && b.id ? `<button class="addswish" data-a="person" data-id="${esc(b.id)}">${esc(L.addSwish(b.name))}</button>` : '';
     return `<div class="txcard"><div class="who">${av(a)}${ICON.arrow}${av(b)}<strong>${esc(money(x.v, list))}</strong></div><p>${esc(L.pays(a.name, b.name))}</p>
-      <div class="pair"><button data-a="copy-amount" data-v="${x.v}">${esc(L.copyAmount)}</button><button class="go" data-a="mark-paid" data-i="${i}">${esc(L.paid)}</button></div></div>`;
+      <div class="pair">${sw}<button data-a="copy-amount" data-v="${x.v}">${esc(L.copyAmount)}</button><button class="go" data-a="mark-paid" data-i="${i}">${esc(L.paid)}</button></div>${addSw}</div>`;
   }).join('');
   const done = list.payments.slice().sort((a, b) => b.at - a.at);
   app.innerHTML = `
@@ -634,6 +763,23 @@ function markPaid(i) {
   const p = { id: uid(), from: x.from, to: x.to, amount: x.v, date: todayISO(), at: Date.now() };
   list.payments.push(p); persist(); render();
   toast(L.markedPaid, () => { list.payments = list.payments.filter(q => q.id !== p.id); persist(); render(); });
+}
+
+function swishSheet(i) {
+  const L = t(), list = cur(), x = calc(list).tx[i];
+  if (!x) return;
+  const a = person(list, x.from), b = person(list, x.to);
+  if (!b.swish) return;
+  const msg = swishMsg(list.name), touch = isTouch();
+  sheet(`<h3>${esc(L.swishTo(b.name))}</h3><p>${esc(touch ? L.swishScan : L.swishScanDesk)}</p>
+    <div class="swishsum"><strong>${esc(money(x.v, list))}</strong><span>${esc(L.pays(a.name, b.name))} · ${esc(swishShow(b.swish))}</span></div>
+    <div class="qrbox">${qrSvg(swishQR(b.swish, x.v, msg))}</div>
+    <div class="foot"><button type="button" class="pill grow" data-x="close">${esc(L.close)}</button>${touch ? `<a class="pill" href="${esc(swishLink(b.swish, x.v, msg))}">${esc(L.openSwish)}</a>` : ''}<button type="submit" class="pill solid">${esc(L.paid)}</button></div>`,
+    form => {
+      const svg = form.querySelector('.qrbox svg'); if (svg) svg.setAttribute('aria-label', L.swishTo(b.name));
+      form.querySelector('[data-x=close]').onclick = closeSheet;
+      form.addEventListener('submit', () => { closeSheet(); markPaid(i); });
+    });
 }
 
 /* ---------- sheets ---------- */
@@ -658,6 +804,7 @@ function personSheet(p) {
   sheet(`<h3>${esc(p ? L.person : L.addPerson)}</h3>
     ${p ? `<p>${esc(L.personPaid(money(c.paid[p.id], list), money(c.owed[p.id], list)))}</p>` : ''}
     <div class="field"><label for="s-name">${esc(L.name)}</label><input id="s-name" class="input" maxlength="40" autocomplete="off" value="${p ? esc(p.name) : ''}"></div>
+    <div class="field"><label for="s-swish">${esc(L.swishNum)}</label><input id="s-swish" class="input" type="tel" inputmode="tel" maxlength="20" autocomplete="off" placeholder="070-123 45 67" aria-describedby="s-swish-hint" value="${p && p.swish ? esc(swishShow(p.swish)) : ''}"><small id="s-swish-hint" class="hintline">${esc(L.swishHint)}</small></div>
     <p class="err" data-err role="alert"></p>
     <div class="foot">${p ? `<button type="button" class="pill danger grow" data-x="remove">${esc(L.remove)}</button>` : ''}<button type="button" class="pill" data-x="close">${esc(L.cancel)}</button><button type="submit" class="pill solid">${esc(p ? L.save : L.add.replace('+ ', ''))}</button></div>`,
     form => {
@@ -667,10 +814,13 @@ function personSheet(p) {
         const name = form.querySelector('#s-name').value.trim();
         if (!name) return err(L.needName);
         if (list.people.some(q => q !== p && q.name.toLowerCase() === name.toLowerCase())) return err(L.duplicate(name));
-        if (p) p.name = name;
+        const swRaw = form.querySelector('#s-swish').value.trim(), sw = swRaw ? swishNorm(swRaw) : null;
+        if (swRaw && !sw) { form.querySelector('#s-swish').focus(); return err(L.badSwish); }
+        if (p) { p.name = name; if (sw) p.swish = sw; else delete p.swish; }
         else {
           const used = list.people.map(q => q.color);
           const np = { id: uid(), name, color: AV.find(col => !used.includes(col)) || AV[list.people.length % AV.length] };
+          if (sw) np.swish = sw;
           list.people.push(np);
           list.expenses.forEach(e => { if (e.allPeople) e.among.push(np.id); });
           if (!list.tip.payer) list.tip.payer = np.id;
@@ -833,6 +983,7 @@ document.addEventListener('click', e => {
     case 'settle': go('settle'); break;
     case 'back': case 'cancel': D = null; goBack(); break;
     case 'mark-paid': markPaid(Number(b.dataset.i)); break;
+    case 'swish': swishSheet(Number(b.dataset.i)); break;
     case 'undo-pay': { const p = list.payments.find(q => q.id === b.dataset.id); list.payments = list.payments.filter(q => q.id !== b.dataset.id); persist(); render(); if (p) toast(L.payUndone, () => { list.payments.push(p); persist(); render(); }); break; }
     case 'copy-amount': copyText(fmtNum(Number(b.dataset.v))).then(ok => ok && toast(L.copied)); break;
     case 'payer': D.payer = b.dataset.id; $('#e-payer').innerHTML = payerChips(); break;
