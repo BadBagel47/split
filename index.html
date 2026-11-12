@@ -120,10 +120,11 @@ h2 { margin: 0; font-size: 20px; font-weight: 800; }
 .field > label, .field > .lbl { font-size: 15px; font-weight: 700; }
 .field .hintline { font-size: 13px; color: var(--muted); font-weight: 500; }
 .input { min-height: 52px; border: 1px solid var(--input-line); border-radius: 16px; background: var(--card); padding: 0 16px; font-size: 17px; width: 100%; }
-select.input, input[type=date].input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%238f8a7b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 20px; padding-right: 44px; }
-input[type=date].input { position: relative; display: flex; align-items: center; text-align: left; cursor: pointer; }
-input[type=date].input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: auto; height: auto; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
-input[type=date].input::-webkit-date-and-time-value { text-align: left; margin: 0; }
+select.input, .datewrap .input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%238f8a7b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 20px; padding-right: 44px; }
+/* date: visible text field in YYYY-MM-DD; an invisible native date input over the chevron opens the device's picker */
+.datewrap { position: relative; }
+.datewrap input[type=date] { position: absolute; top: 0; right: 0; width: 56px; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; appearance: none; -webkit-appearance: none; }
+.datewrap input[type=date]::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: auto; height: auto; margin: 0; padding: 0; cursor: pointer; }
 .wrap { display: flex; gap: 8px; flex-wrap: wrap; }
 .seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: var(--seg); padding: 4px; border-radius: 18px; }
 .seg.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -244,6 +245,7 @@ const T = {
     pctOk: '100 % fördelat', pctLeft: r => `${r} % kvar att fördela`, pctOver: r => `${r} % för mycket`,
     shOk: n => `${n} andelar totalt`, shNone: 'Ge minst en person en andel',
     exOk: 'Hela beloppet är fördelat', exLeft: r => `${r} kvar att fördela`, exOver: r => `${r} för mycket`,
+    datePh: 'ÅÅÅÅ-MM-DD', badDate: 'Skriv datumet som ÅÅÅÅ-MM-DD, till exempel 2026-11-10.',
     needAmount: 'Skriv in ett belopp.', needDesc: 'Skriv vad utgiften gällde.', badNumber: 'Använd bara siffror, noll eller mer.',
     shares: 'andelar',
     settleLead: n => n === 1 ? 'En betalning till så är alla kvitt. Tryck på Betald när pengarna har kommit fram.' : `${n} betalningar så är alla kvitt. Tryck på Betald när pengarna har kommit fram.`,
@@ -296,6 +298,7 @@ const T = {
     pctOk: '100% assigned', pctLeft: r => `${r}% left to assign`, pctOver: r => `${r}% too much`,
     shOk: n => `${n} shares in total`, shNone: 'Give at least one person a share',
     exOk: 'The whole amount is assigned', exLeft: r => `${r} left to assign`, exOver: r => `${r} too much`,
+    datePh: 'YYYY-MM-DD', badDate: 'Write the date as YYYY-MM-DD, for example 2026-11-10.',
     needAmount: 'Enter an amount.', needDesc: 'Say what the expense was for.', badNumber: 'Use numbers only, zero or more.',
     shares: 'shares',
     settleLead: n => n === 1 ? 'One more payment and everyone is settled. Tap Paid when the money has arrived.' : `${n} payments and everyone is settled. Tap Paid when the money has arrived.`,
@@ -644,8 +647,15 @@ function dayLabel(iso) {
   const yIso = new Date(y.getTime() - y.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   if (iso === today) return L.today;
   if (iso === yIso) return L.yesterday;
-  const d = new Date(iso + 'T12:00:00');
-  return d.toLocaleDateString(L.loc, { day: 'numeric', month: 'long', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
+  return iso;
+}
+// Accepts YYYY-MM-DD (also YYYYMMDD and / or . as separators); returns a valid ISO date or null.
+function parseISODate(v) {
+  const m = String(v).trim().match(/^(\d{4})[-./]?(\d{1,2})[-./]?(\d{1,2})$/);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3], dt = new Date(Date.UTC(y, mo - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+  return dt.toISOString().slice(0, 10);
 }
 
 /* ---------- expense editor ---------- */
@@ -674,7 +684,7 @@ function renderExpense() {
     <div class="field"><span class="lbl" id="l-payer">${esc(L.whoPaid)}</span><div class="wrap" role="radiogroup" aria-labelledby="l-payer" id="e-payer">${payerChips()}</div></div>
     <div class="field"><span class="lbl" id="l-mode">${esc(L.howSplit)}</span><div id="e-split">${splitBlock()}</div></div>
     <details class="more"${D.category || D.date !== todayISO() ? ' open' : ''}><summary>${esc(L.dateCat)}${ICON.chev}</summary><div class="inner">
-      <div class="field"><label for="e-date">${esc(L.date)}</label><input id="e-date" type="date" class="input" lang="${esc(L.loc)}" value="${esc(D.date)}"></div>
+      <div class="field"><label for="e-date">${esc(L.date)}</label><div class="datewrap"><input id="e-date" class="input" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="${esc(L.datePh)}" value="${esc(D.dateText != null ? D.dateText : D.date)}"><input id="e-date-pick" type="date" tabindex="-1" aria-hidden="true" value="${esc(D.date)}"></div></div>
       <div class="field"><label for="e-cat">${esc(L.category)}</label><select id="e-cat" class="input"><option value="">${esc(L.none)}</option>${CATS.map(k => `<option value="${k}"${k === D.category ? ' selected' : ''}>${esc(L.cats[k])}</option>`).join('')}</select></div>
     </div></details>
     <p class="err" id="e-err" role="alert">${esc(D.err || '')}</p>`;
@@ -743,6 +753,7 @@ function saveExpense() {
   const fail = m => { D.err = m; err.textContent = m; err.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
   if (!(amount > 0)) { fail(L.needAmount); $('#e-amount').focus(); return; }
   if (!desc) { fail(L.needDesc); $('#e-desc').focus(); return; }
+  if (D.dateText != null) { const iso = parseISODate(D.dateText); if (!iso) { fail(L.badDate); $('#e-date').focus(); return; } D.date = iso; }
   const ev = evalSplit();
   if (!ev.ok) { fail(ev.msg || L.badNumber); return; }
   const data = { desc, amount, payer: D.payer, among: ev.among, split: ev.split, allPeople: ev.split.mode === 'equal' && ev.among.length === list.people.length, date: D.date || todayISO(), category: D.category || '' };
@@ -1021,6 +1032,7 @@ document.addEventListener('input', e => {
   const el = e.target;
   if (el.id === 'e-amount') { D.amount = el.value; updateSplitInfo(); }
   else if (el.id === 'e-desc') D.desc = el.value;
+  else if (el.id === 'e-date') { D.dateText = el.value; const iso = parseISODate(el.value); if (iso) { D.date = iso; $('#e-date-pick').value = iso; } }
   else if (el.dataset.pid !== undefined) updateSplitInfo();
   if (D.err) { D.err = ''; const er = $('#e-err'); if (er) er.textContent = ''; }
 });
@@ -1028,7 +1040,8 @@ document.addEventListener('change', e => {
   if (view !== 'expense' || !D) return;
   const el = e.target;
   if (el.dataset.among !== undefined) { D.among = [...app.querySelectorAll('[data-among]')].filter(i => i.checked).map(i => i.dataset.among); updateSplitInfo(); }
-  else if (el.id === 'e-date') D.date = el.value || todayISO();
+  else if (el.id === 'e-date') { const iso = parseISODate(el.value); if (iso) { D.date = iso; D.dateText = el.value = iso; } }
+  else if (el.id === 'e-date-pick' && el.value) { D.date = el.value; D.dateText = null; $('#e-date').value = el.value; }
   else if (el.id === 'e-cat') D.category = el.value;
 });
 document.addEventListener('keydown', e => {

@@ -10,22 +10,21 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 - `<meta name="description">` is Swedish regardless of language (seen in link previews and search results).
 - Proposed fix: keep Swedish as the default for link previews (they are generated without running JS); no change unless wanted.
 
+## Proposed runs
+
+(none)
+
+## Done
+
 ### F-008 – Dates as YYYY-MM-DD in all languages
 - Priority: Medium
-- Status: Ready, awaiting go-ahead.
+- Status: Done 2026-11-12. Visible text field `#e-date` (typed dates validated by `parseISODate`, also accepts YYYYMMDD); an invisible native `#e-date-pick` over the chevron opens the device's picker. `dayLabel` returns ISO dates except Today/Yesterday.
 - Goal: show dates as YYYY-MM-DD regardless of app and device language.
 - Proposal:
   - Date field on the expense screen: replace the visible native date input (whose format follows the device language and can't be forced) with a text field showing YYYY-MM-DD, plus the chevron/button that opens the native date picker. Typed dates are validated.
   - Date headings in the expense list and "Already paid": use YYYY-MM-DD instead of "10 november".
 - Decision (2026-11-12): keep "Today"/"Yesterday" for the two most recent days; YYYY-MM-DD for all other dates.
 - Supersedes the remaining part of B-004.
-
-## Proposed runs
-
-- **A** – Sonnet, medium – Dates as YYYY-MM-DD
-  - F-008 – YYYY-MM-DD in the date field and date headings
-
-## Done
 
 ### B-002 – Default list names keep their original language
 - Status: Done 2026-11-12. `renameDefaults` renames lists whose name is exactly the old language's default ("Våra utgifter"/"Our expenses", "Lista N"/"List N").
