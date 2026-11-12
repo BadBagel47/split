@@ -6,13 +6,22 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ### B-005 – Page description always Swedish
 - Priority: Low
-- Status: Parked; no change proposed.
+- Status: Proposed, awaiting go-ahead.
 - `<meta name="description">` is Swedish regardless of language (seen in link previews and search results).
-- Proposed fix: keep Swedish as the default for link previews (they are generated without running JS); no change unless wanted.
+- Decision (2026-11-12): shared links should preview in the language Split is set to.
+- Proposed fix: link previews are made by services that read the page without running JS, so the language has to be in the URL. Add a small English entry page `en/index.html` with English title/description (plus Open Graph tags) that immediately forwards to the app, keeping the `#import=` data. When Split is set to English, share links point to `/en/`; in Swedish they point to the root as today. Add Open Graph tags to the root page too.
+
+### F-011 – Warn before sharing a list that contains Swish numbers
+- Priority: Medium
+- Status: Proposed, awaiting go-ahead.
+- Share links contain the whole list, including Swish numbers, in the URL. Anyone who gets the link can see the numbers.
+- Proposed fix: when the list has Swish numbers, show a sheet before sharing that names whose numbers are included and explains that everyone who gets the link can see them. Buttons: Cancel, Share without numbers, Share anyway. Lists without numbers share directly as today.
 
 ## Proposed runs
 
-(none)
+- **A** – Sonnet, medium – Sharing
+  - B-005 – Link preview in the language Split is set to
+  - F-011 – Warning before sharing Swish numbers
 
 ## Done
 
