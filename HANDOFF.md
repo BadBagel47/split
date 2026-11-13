@@ -1,6 +1,6 @@
 # HANDOFF
 
-Rules version: 1.5
+Rules version: 1.6
 Inventory: 2026-11-12 (supplemented 2026-11-13: all remote branches, git history for sensitive data, laws and regulations)
 
 ## Project
@@ -20,7 +20,7 @@ Inventory: 2026-11-12 (supplemented 2026-11-13: all remote branches, git history
 - Agents push to `claude/*` branches; `.github/workflows/auto-merge.yml` (agent-rules template, added by the user 2026-11-12) merges them into `main` and triggers a Pages build. Verified working 2026-11-12.
 
 ## Current state
-- Latest work (2026-11-12): B-012 Done button when adding participants; B-005 link preview follows the app language and F-011 warning before sharing Swish numbers; B-010 self-hosted fonts; F-008 dates as YYYY-MM-DD; F-001 Swish in settle-up.
+- Latest work: D-013 privacy note in Settings (2026-11-13); B-012 Done button when adding participants; B-005 link preview follows the app language and F-011 warning before sharing Swish numbers; B-010 self-hosted fonts; F-008 dates as YYYY-MM-DD; F-001 Swish in settle-up.
 - Needs a real-device check: Swish QR code and "Open Swish" on iPhone and Android (F-001); date picker arrow (B-007/F-008).
 - Next: see docs/BACKLOG.md.
 
@@ -39,7 +39,7 @@ Inventory: 2026-11-12 (supplemented 2026-11-13: all remote branches, git history
 ## Laws and regulations (brief review 2026-11-13)
 - Local storage (`localStorage`) is only used for the service the user asks for; this is normally exempt from consent under the Swedish Electronic Communications Act (LEK 9:28). Not legal advice.
 - No third-party requests since fonts are self-hosted (B-010); Google Fonts previously sent visitors' IP addresses to Google.
-- Personal data (names, Swish numbers) stays on the device unless the user shares a link or backup; sharing warns about Swish numbers (F-011). There is no privacy note in the app: see D-013.
+- Personal data (names, Swish numbers) stays on the device unless the user shares a link or backup; sharing warns about Swish numbers (F-011). A short privacy note is in Settings (D-013).
 - Fonts are under the SIL Open Font License; licence files are in `fonts/`.
 
 ## Sensitive information

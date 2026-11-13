@@ -4,17 +4,18 @@ Priority scale: High, Medium, Low. IDs: B = bug, F = feature, D = planning/desig
 
 ## Open
 
-### D-013 – Short privacy note in the app
-- Priority: Low
-- Status: Proposed (from the laws and regulations review 2026-11-13).
-- The app has no privacy information beyond the footer line. A short note (e.g. in Settings) would say what is stored on the device, that nothing is sent to a server, and that share links and backups contain the list, including names and Swish numbers. Supports transparency under GDPR; not legal advice.
+(none)
 
 ## Proposed runs
 
-- **A** – standard model, low level – Privacy note
-  - D-013 – Add a short privacy note in Settings, so users know what is stored and what share links contain
+(none)
 
 ## Done
+
+### D-013 – Short privacy note in the app
+- Priority: Low
+- Status: Done 2026-11-13. "Privacy" section at the bottom of Settings (`privacy`/`privacyText` strings).
+- The app has no privacy information beyond the footer line. A short note (e.g. in Settings) would say what is stored on the device, that nothing is sent to a server, and that share links and backups contain the list, including names and Swish numbers. Supports transparency under GDPR; not legal advice.
 
 ### B-012 – "Cancel" in the add-participant sheet is confusing
 - Priority: Low

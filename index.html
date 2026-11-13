@@ -301,6 +301,8 @@ const T = {
     importTitle: 'Lägg till delad lista', importQ: n => `Vill du lägga till listan "${n}" här?`, importBtn: 'Lägg till',
     imported: 'Listan har lagts till', importBad: 'Länken kunde inte läsas.',
     defaultList: 'Våra utgifter', newListName: n => `Lista ${n}`,
+    privacy: 'Integritet',
+    privacyText: 'Allt du skriver in sparas bara i den här webbläsaren. Inget skickas till någon server och inget spåras. En delad länk eller säkerhetskopia innehåller hela listan, även namn och Swish-nummer, så dela den bara med dem som ska ha den. Rensar du webbläsarens data försvinner listorna.',
     footer: 'Utan konto eller databas. Allt sparas på den här enheten.'
   },
   en: {
@@ -356,6 +358,8 @@ const T = {
     importTitle: 'Add shared list', importQ: n => `Add the list "${n}" here?`, importBtn: 'Add',
     imported: 'The list was added', importBad: "The link couldn't be read.",
     defaultList: 'Our expenses', newListName: n => `List ${n}`,
+    privacy: 'Privacy',
+    privacyText: 'Everything you enter is stored only in this browser. Nothing is sent to a server and nothing is tracked. A shared link or backup contains the whole list, including names and Swish numbers, so only share it with the people who should have it. Clearing your browser data removes the lists.',
     footer: 'No account or database. Everything stays on this device.'
   }
 };
@@ -924,6 +928,7 @@ function settingsSheet() {
         <div class="field"><label for="s-tipp">${esc(L.whoPaysTip)}</label><select id="s-tipp" class="input">${list.people.map(p => `<option value="${p.id}"${p.id === tp.payer ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div></div>
         <p style="font-size:14px">${esc(L.tipNote)}</p></div>
       <div class="grid2"><button type="button" class="pill" data-x="backup">${esc(L.backup)}</button><button type="button" class="pill danger" data-x="delete">${esc(L.deleteList)}</button></div></div>
+    <div class="group2"><h4>${esc(L.privacy)}</h4><p style="font-size:14px">${esc(L.privacyText)}</p></div>
     <div class="foot"><button type="submit" class="pill solid">${esc(L.done)}</button></div>`,
     form => {
       form.addEventListener('submit', closeSheet);
